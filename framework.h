@@ -46,32 +46,45 @@ using namespace Gdiplus;
 inline std::string currentDirPath;
 inline std::string PreviewDirPath = "Preview";
 
-inline char* PWSTRToChar(PWSTR wideString)
-{
-    // 변환할 버퍼 크기 계산
-    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wideString, -1, NULL, 0, NULL, NULL);
-    if (bufferSize == 0) {
-        std::cout << "WideCharToMultiByte 함수 실패" << std::endl;
-        return nullptr;
+inline PWSTR StringToPWSTR(const std::string& str) {
+    // 입력된 string을 const char*로 가져오기
+    const char* cstr = str.c_str();
+
+    // 필요한 유니코드 문자열 크기 계산
+    int sizeRequired = MultiByteToWideChar(CP_ACP, 0, cstr, -1, nullptr, 0);
+    if (sizeRequired <= 0) {
+        return nullptr;  // 변환 실패 시 nullptr 반환
     }
 
-    // 변환된 문자열을 저장할 버퍼
-    char* multiByteString = new char[bufferSize];
+    // PWSTR을 위한 메모리 할당
+    PWSTR pwstr = new wchar_t[sizeRequired];
 
-    // 실제 변환
-    int result = WideCharToMultiByte(CP_UTF8, 0, wideString, -1, multiByteString, bufferSize, NULL, NULL);
-    if (result == 0) {
-        std::cout << "WideCharToMultiByte 함수 실패" << std::endl;
-        delete[] multiByteString;
-        return nullptr;
+    // 실제 변환: ANSI(멀티바이트)를 유니코드로 변환
+    MultiByteToWideChar(CP_ACP, 0, cstr, -1, pwstr, sizeRequired);
+
+    return pwstr;
+}
+
+inline std::string PWSTRToString(PWSTR pwsz) {
+    // Convert PWSTR (UTF-16) to std::string (UTF-8)
+    int requiredSize = WideCharToMultiByte(CP_UTF8, 0, pwsz, -1, NULL, 0, NULL, NULL);
+    if (requiredSize > 0) {
+        // Allocate memory for UTF-8 string
+        char* utf8String = new char[requiredSize];
+        WideCharToMultiByte(CP_UTF8, 0, pwsz, -1, utf8String, requiredSize, NULL, NULL);
+
+        // Create std::string from UTF-8 char array
+        std::string result(utf8String);
+
+        delete[] utf8String;  // Free memory
+        return result;
     }
-
-    return multiByteString;
+    return std::string();  // Return empty string if conversion fails
 }
 
 // 문자열을 따음표로 감싸기
 // www\dddds\d d.gif -> "www\dddds\d d.gif"
-inline std::string WraapingQuotes(const std::string s)
+inline std::string WrapingQuotes(const std::string s)
 {
     return "\"" + s + "\"";
 }

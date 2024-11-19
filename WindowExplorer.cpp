@@ -185,16 +185,6 @@ void WindowExplorer::FileOpenDialog()
 
         if (SUCCEEDED(hr))
         {
-            // Set the initial folder to a specific directory (e.g., C:\MyFolder)
-            //IShellItem* pFolder;
-            //hr = SHCreateItemFromParsingName(fileOpenDialogPath, NULL, IID_PPV_ARGS(&pFolder));
-
-            //if (SUCCEEDED(hr))
-            //{
-            //    hr = pFileOpen->SetFolder(pFolder);
-            //    pFolder->Release();
-            //}
-
             // Show the Open dialog box.
             hr = pFileOpen->Show(NULL);
 
@@ -210,9 +200,9 @@ void WindowExplorer::FileOpenDialog()
                     // Display the file name to the user.
                     if (SUCCEEDED(hr))
                     {
-                        successFileOpenEvent.Execute<void, char*>(PWSTRToChar(pszFilePath));
+                        successFileOpenEvent.Execute<void, std::string>(PWSTRToString(pszFilePath));
 
-                        MessageBoxW(NULL, pszFilePath, L"File Path", MB_OK);
+                        //MessageBoxW(NULL, pszFilePath, L"File Path", MB_OK);
                         CoTaskMemFree(pszFilePath);
                     }
                     pItem->Release();

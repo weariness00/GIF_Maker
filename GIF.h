@@ -3,6 +3,9 @@
 
 class GIF
 {
+private:
+	static int MakeThread(const GIF& gif, const std::string paletteCommand, const std::string gifCommand);
+
 public:
 	GIF();
 	~GIF();
@@ -13,16 +16,16 @@ public:
 	void UpdateGIFFrame(HWND hWnd);
 
 	int Make(const char* inputFile, const char* outputFile) const;
-	int Make(const std::string& inputFile, const std::string& outputFile) const { return Make(inputFile.c_str(), outputFile.c_str()); }
-
-private:
-	static int MakeThread(const std::string paletteCommand, const std::string gifCommand);
+	int Make(const std::string& inputFile, const std::string& outputFile) const { return Make(inputFile.c_str(), outputFile.c_str()); };
 
 public:
 	Image* gifImage = nullptr;
 	UINT frameCount = 0;
 	UINT currentFrame = 0;
 	GUID* frameDimension = nullptr;
+
+	TDelegate paletteGenerateEvent;
+	TDelegate gifGenerateEvent;
 
 private:
 	WCHAR* filepath;

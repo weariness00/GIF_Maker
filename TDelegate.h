@@ -29,6 +29,22 @@ public:
         }
     }
 
+    template <typename Res>
+    void Execute() const
+    {
+        for (auto& e : events)
+        {
+            // 시그니처가 맞을 경우에만 실행
+            if (e.type() == typeid(std::function<Res()>)) {
+                auto extracted_func = std::any_cast<std::function<Res()>>(e);
+                extracted_func();  // 델리게이트 실행
+            }
+            else {
+                std::cout << "Error: Arguments do not match the expected signature." << std::endl;
+            }
+        }
+    }
+
     // 델리게이트 제거 메서드
     template <typename Res, typename... Args>
     void RemoveEvent(std::function<Res(Args...)> func) {

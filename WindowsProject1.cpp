@@ -29,11 +29,27 @@ void Init()
     std::filesystem::create_directory(dirPath);
     PreviewDirPath = dirPath.string();
 
-    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(char*)>([&](char* inputFile)
-    {
-    	std::string outputFile = PreviewDirPath + "\\output";
-	    testGIF.Make(inputFile, outputFile.c_str());
-    }));
+    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::string)>([&](std::string inputFile)
+        {
+            std::string outputFile = PreviewDirPath + "\\output";
+            testGIF.Make(inputFile, outputFile);
+        }));
+
+    testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
+        {
+            std::thread massageBoxThread([]()
+            {
+            	return MessageBoxW(NULL, L"성공적으로 palette 생성 완료", L"File Path", MB_OK);
+            });
+        }));
+
+    testGIF.gifGenerateEvent.AddEvent(std::function<void()>([]()
+        {
+            std::thread massageBoxThread([]()
+                {
+                    return MessageBoxW(NULL, L"성공적으로 gif 생성 완료", L"File Path", MB_OK);
+                });
+        }));
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
