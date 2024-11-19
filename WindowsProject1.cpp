@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "WindowsProject1.h"
 #include "WindowExplorer.h"
+#include "GIF.h"
 
 #define MAX_LOADSTRING 100
 
@@ -13,12 +14,27 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
 WindowExplorer windowExplorer;
+GIF testGIF;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+void Init()
+{
+    currentDirPath = std::filesystem::current_path().string();
+    auto dirPath = std::filesystem::current_path() / PreviewDirPath;
+    std::filesystem::create_directory(dirPath);
+    PreviewDirPath = dirPath.string();
+
+    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(char*)>([&](char* inputFile)
+    {
+    	std::string outputFile = PreviewDirPath + "\\output";
+	    testGIF.Make(inputFile, outputFile.c_str());
+    }));
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -29,6 +45,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
+    Init();
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);

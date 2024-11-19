@@ -15,6 +15,9 @@ public:
 	int Make(const char* inputFile, const char* outputFile) const;
 	int Make(const std::string& inputFile, const std::string& outputFile) const { return Make(inputFile.c_str(), outputFile.c_str()); }
 
+private:
+	static int MakeThread(const std::string paletteCommand, const std::string gifCommand);
+
 public:
 	Image* gifImage = nullptr;
 	UINT frameCount = 0;

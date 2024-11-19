@@ -9,6 +9,7 @@
 // Windows 헤더 파일
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
+#include <filesystem>
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -20,6 +21,15 @@
 #include <shlwapi.h>
 #include <strsafe.h>
 #include <propvarutil.h>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <vector>
+#include <atomic>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "TDelegate.h"
 
@@ -34,7 +44,7 @@
 using namespace Gdiplus;
 
 inline std::string currentDirPath;
-inline const std::string PreviewDirPath = "Preview";
+inline std::string PreviewDirPath = "Preview";
 
 inline char* PWSTRToChar(PWSTR wideString)
 {
@@ -57,4 +67,11 @@ inline char* PWSTRToChar(PWSTR wideString)
     }
 
     return multiByteString;
+}
+
+// 문자열을 따음표로 감싸기
+// www\dddds\d d.gif -> "www\dddds\d d.gif"
+inline std::string WraapingQuotes(const std::string s)
+{
+    return "\"" + s + "\"";
 }
