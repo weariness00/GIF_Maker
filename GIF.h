@@ -4,7 +4,7 @@
 class GIF
 {
 private:
-	static int MakeThread(const GIF& gif, const std::string paletteCommand, const std::string gifCommand);
+	static int MakeThread(const GIF& gif, std::wstring paletteCommand, std::wstring gifCommand);
 
 public:
 	GIF();
@@ -15,8 +15,7 @@ public:
 	void LoadGIF(const WCHAR* _filepath);
 	void UpdateGIFFrame(HWND hWnd);
 
-	int Make(const char* inputFile, const char* outputFile) const;
-	int Make(const std::string& inputFile, const std::string& outputFile) const { return Make(inputFile.c_str(), outputFile.c_str()); };
+	int Make(std::wstring& inputFile, std::wstring& outputFile) const;
 
 public:
 	Image* gifImage = nullptr;

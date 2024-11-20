@@ -24,14 +24,14 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void Init()
 {
-    currentDirPath = std::filesystem::current_path().string();
+    currentDirPath = std::filesystem::current_path().wstring();
     auto dirPath = std::filesystem::current_path() / PreviewDirPath;
     std::filesystem::create_directory(dirPath);
-    PreviewDirPath = dirPath.string();
+    PreviewDirPath = dirPath.wstring();
 
-    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::string)>([&](std::string inputFile)
+    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
         {
-            std::string outputFile = PreviewDirPath + "\\output";
+            std::wstring outputFile = PreviewDirPath.append(L"\\output");
             testGIF.Make(inputFile, outputFile);
         }));
 
@@ -41,6 +41,7 @@ void Init()
             {
             	return MessageBoxW(NULL, L"성공적으로 palette 생성 완료", L"File Path", MB_OK);
             });
+            massageBoxThread.detach();
         }));
 
     testGIF.gifGenerateEvent.AddEvent(std::function<void()>([]()
@@ -49,6 +50,7 @@ void Init()
                 {
                     return MessageBoxW(NULL, L"성공적으로 gif 생성 완료", L"File Path", MB_OK);
                 });
+            massageBoxThread.detach();
         }));
 }
 

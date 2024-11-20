@@ -48,33 +48,41 @@ void GIF::UpdateGIFFrame(HWND hWnd)
     InvalidateRect(hWnd, NULL, TRUE); // 화면 갱신 요청
 }
 
-int GIF::Make(const char* inputFile, const char* outputFile) const
+int GIF::Make(std::wstring& inputFile, std::wstring& outputFile) const
 {
-    auto curInputPath = WrapingQuotes(inputFile);
-    auto curPalettePath = WrapingQuotes( std::string(outputFile) + ".png");
-    auto curOutputPath = WrapingQuotes(std::string(outputFile) + ".gif");
-    std::string paletteCommand = currentDirPath + "\\ffmpeg.exe -i " + curInputPath + " -vf \"fps = 30, scale = 1280:-1 : flags = lanczos, palettegen\" " + curPalettePath;
-    std::string gifCommand = currentDirPath + "\\ffmpeg.exe -i " + curInputPath + " -i " + curPalettePath + " -filter_complex \"fps = 30, scale = 1280:-1 : flags = lanczos[x]; [x] [1:v] paletteuse\" " + curOutputPath;
+    std::wstring curInputPath = inputFile;
+    std::wstring curPalettePath = outputFile;
+    std::wstring curOutputPath = outputFile;
+
+    WrapingQuotes(curInputPath);
+    curPalettePath.append(L".png");
+    curOutputPath.append(L".gif");
+    WrapingQuotes(curPalettePath);
+    WrapingQuotes(curOutputPath);
+
+    std::wstring paletteCommand = currentDirPath;
+    paletteCommand.append(L"\\ffmpeg.exe -i ").append(curInputPath).append(L" -vf \"fps = 30, scale = 1280:-1 : flags = lanczos, palettegen\" ").append(curPalettePath);
+    std::wstring gifCommand = currentDirPath;
+    gifCommand.append(L"\\ffmpeg.exe -i ").append(curInputPath).append(L" -i ").append(curPalettePath).append(L" -filter_complex \"fps = 30, scale = 1280:-1 : flags = lanczos[x]; [x] [1:v] paletteuse\" ").append(curOutputPath);
     std::thread makeThread(&GIF::MakeThread, *this, paletteCommand, gifCommand);
 
     makeThread.detach();
     return 0;
 }
 
-int GIF::MakeThread(const GIF& gif, const std::string paletteCommand, const std::string gifCommand)
+int GIF::MakeThread(const GIF& gif, std::wstring paletteCommand, std::wstring gifCommand)
 {
-    auto process = [](const std::string& command)
+    auto process = [](const std::wstring& command)
     {
         // FFmpeg 실행을 위한 프로세스 생성
         PROCESS_INFORMATION pi;
-        STARTUPINFOA si = { sizeof(STARTUPINFOA) };  // STARTUPINFOA 구조체 초기화
+        STARTUPINFOW si{ sizeof(STARTUPINFOW) };
         si.dwFlags = STARTF_USESHOWWINDOW;
         si.wShowWindow = SW_HIDE;  // FFmpeg 실행 창 숨기기
 
-        // CreateProcessA 함수 호출
-        if (!CreateProcessA(
+        if (!CreateProcessW(
             NULL,                    // 애플리케이션 경로 (NULL은 명령어로 사용)
-            const_cast<LPSTR>(command.c_str()), // 명령어 (LPSTR 형식으로 변환)
+            const_cast<LPWSTR>(command.c_str()), // 명령어 (LPSTR 형식으로 변환)
             NULL,                    // 프로세스 보안 속성
             NULL,                    // 스레드 보안 속성
             FALSE,                   // 표준 핸들 상속 여부

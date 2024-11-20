@@ -200,7 +200,7 @@ void WindowExplorer::FileOpenDialog()
                     // Display the file name to the user.
                     if (SUCCEEDED(hr))
                     {
-                        successFileOpenEvent.Execute<void, std::string>(PWSTRToString(pszFilePath));
+                        successFileOpenEvent.Execute<void, std::wstring>(pszFilePath);
 
                         //MessageBoxW(NULL, pszFilePath, L"File Path", MB_OK);
                         CoTaskMemFree(pszFilePath);
