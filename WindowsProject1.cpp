@@ -5,6 +5,7 @@
 #include "WindowsProject1.h"
 #include "WindowExplorer.h"
 #include "GIF.h"
+#include "VideoView.h"
 
 #define MAX_LOADSTRING 100
 
@@ -15,6 +16,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 
 WindowExplorer windowExplorer;
 GIF testGIF;
+VideoView* testVideoView;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -30,9 +32,10 @@ void Init()
     PreviewDirPath = dirPath.wstring();
 
     windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
-        {
-            std::wstring outputFile = PreviewDirPath.append(L"\\output");
-            testGIF.Make(inputFile, outputFile);
+		{
+            testVideoView->OnFileOpen(inputFile);
+            //std::wstring outputFile = PreviewDirPath.append(L"\\output");
+            //testGIF.Make(inputFile, outputFile);
         }));
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
@@ -89,7 +92,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
-
     return (int) msg.wParam;
 }
 
@@ -163,6 +165,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_CREATE:
+        testVideoView = new VideoView(hWnd);
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -170,7 +175,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case WindowFileLoad:
-                windowExplorer.FileOpenDialog();
+                windowExplorer.FileOpenDialog(hWnd);
                 break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -185,14 +190,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+            //PAINTSTRUCT ps;
+            //HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
+            testVideoView->OnPaint(hWnd);
+            //EndPaint(hWnd, &ps);
         }
+        break;
+    case WM_SIZE:
+        testVideoView->OnResize(LOWORD(lParam), HIWORD(lParam));
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+    case WM_APP_PLAYER_EVENT:
+        testVideoView->OnPlayerEvent(hWnd, wParam);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

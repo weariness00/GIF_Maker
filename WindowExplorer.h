@@ -20,7 +20,7 @@ public:
 	void OpenWindow();
 
 	// 파일 열기 대화 상자
-	void FileOpenDialog();
+	void FileOpenDialog(HWND hWnd);
 	PWSTR GetFilePath() const { return pszFilePath; }
 
 public:

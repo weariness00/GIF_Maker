@@ -133,12 +133,16 @@
     <ClInclude Include="MainView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
+    <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="VideoView.h" />
     <ClInclude Include="WindowExplorer.h" />
     <ClInclude Include="WindowsProject1.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GIF.cpp" />
     <ClCompile Include="TDelegate.cpp" />
+    <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="VideoView.cpp" />
     <ClCompile Include="WindowExplorer.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
   </ItemGroup>

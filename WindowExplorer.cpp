@@ -170,7 +170,7 @@ void WindowExplorer::OpenWindow()
     }
 }
 
-void WindowExplorer::FileOpenDialog()
+void WindowExplorer::FileOpenDialog(HWND hWnd)
 {
     HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
         COINIT_DISABLE_OLE1DDE);

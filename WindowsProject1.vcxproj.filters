@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Video">
+      <UniqueIdentifier>{e53bd1c2-a495-44d1-987f-8c502c301a91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -36,6 +39,12 @@
     <ClInclude Include="GIF.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="VideoView.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoPlayer.h">
+      <Filter>Video</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsProject1.cpp">
@@ -49,6 +58,12 @@
     </ClCompile>
     <ClCompile Include="GIF.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoView.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>Video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
