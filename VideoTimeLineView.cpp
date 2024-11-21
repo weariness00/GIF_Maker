@@ -36,10 +36,8 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd)
         WindowProc,
         x, y,
         windowW, windowH,
-        this);
-
-    CStatic* pPicture = (CStatic*)GetDlgItem(IDC_IMAGE); // IDC_IMAGE´Â Picture Control ID
-    HBITMAP hBitmap = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_MY_IMAGE), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        this,
+        RGB(200,200,200));
 }
 
 VideoTimeLineView::~VideoTimeLineView()

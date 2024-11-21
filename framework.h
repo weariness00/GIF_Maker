@@ -34,16 +34,12 @@
 #include <cstring>
 
 #include "TDelegate.h"
+#include "ImageController.h"
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "propsys.lib")
-
-#include <gdiplus.h>
-#pragma comment(lib, "gdiplus.lib")
-
-using namespace Gdiplus;
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "windowscodecs.lib")
@@ -101,7 +97,8 @@ inline HWND CreateChildWindow(
     LPCWSTR className,                  // 자식 윈도우 클래스 이름
     WNDPROC childWndProc,               // 자식 윈도우 프로시저
     int x, int y, int width, int height, // 자식 윈도우 위치 및 크기
-    LPVOID data
+    LPVOID data = nullptr,
+    COLORREF color = RGB( 0,0,255 )
 ) {
 
     std::wstring ws = className;
@@ -113,7 +110,7 @@ inline HWND CreateChildWindow(
     wcChild.lpfnWndProc = childWndProc;
     wcChild.hInstance = hInstance;
     wcChild.lpszClassName = ws.c_str();
-    //wcChild.hbrBackground = CreateSolidBrush(RGB(0, 0, 255));
+    wcChild.hbrBackground = CreateSolidBrush(color);
 
     int count = 1;
     while(GetClassInfoW(hInstance, ws.c_str(), &wcChild)) {
