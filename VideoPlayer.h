@@ -22,11 +22,13 @@
 #pragma comment(lib, "mfuuid.lib")
 #pragma comment(lib, "evr.lib")
 #pragma comment(lib, "strmiids.lib")
+#include <d3d11.h>
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mferror.h>
 #include <evr.h>
 #include <mfobjects.h>
+#include "TDelegate.h"
 
 template <class T> void SafeRelease(T** ppT)
 {
@@ -81,7 +83,7 @@ public:
 
     // Video functionality
     HRESULT       Repaint();
-    HRESULT       ResizeVideo(WORD width, WORD height);
+    HRESULT       ResizeVideo(RECT& rect);
 
     BOOL          HasVideo() const { return (m_pVideoDisplay != NULL); }
 
@@ -108,6 +110,9 @@ protected:
     {
         return S_OK;
     }
+
+public:
+    TDelegate readyVideoRenderer;
 
 protected:
     long                    m_nRefCount;        // Reference count.

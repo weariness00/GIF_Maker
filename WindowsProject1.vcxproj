@@ -134,6 +134,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
     <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="VideoTimeLineView.h" />
     <ClInclude Include="VideoView.h" />
     <ClInclude Include="WindowExplorer.h" />
     <ClInclude Include="WindowsProject1.h" />
@@ -142,6 +143,7 @@
     <ClCompile Include="GIF.cpp" />
     <ClCompile Include="TDelegate.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="VideoTimeLineView.cpp" />
     <ClCompile Include="VideoView.cpp" />
     <ClCompile Include="WindowExplorer.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
@@ -150,6 +152,7 @@
     <ResourceCompile Include="MainView.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="bitmap1.bmp" />
     <Image Include="small.ico" />
     <Image Include="WindowsProject1.ico" />
   </ItemGroup>

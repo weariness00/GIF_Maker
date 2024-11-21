@@ -1,9 +1,12 @@
 #pragma once
-#include "framework.h"
 #include "VideoPlayer.h"
+#include "VideoTimeLineView.h"
 
 class VideoView
 {
+private:
+	static LRESULT CALLBACK VideoViewWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 public:
 	VideoView(HWND hwnd);
 	~VideoView();
@@ -11,15 +14,26 @@ public:
 public:
 	void OnFileOpen(std::wstring& path) const;
 	LRESULT OnCreateWindow(HWND hwnd);
-	void OnPaint(HWND hwnd);
-	void OnResize(WORD width, WORD height);
+	void OnPaint();
+	void OnResize(RECT& rect) const;
+	void OnResize(int w, int h) { RECT rect{ 0,0, w, h }; OnResize(rect); }
 	void OnKeyPress(WPARAM key);
-	void OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr);
+	void OnPlayerEvent(WPARAM pUnkPtr);
 	void UpdateUI(VideoPlayerState state);
-	void NotifyError(HWND hwnd, PCWSTR pszErrorMessage, HRESULT hrErr);
-private:
+	void NotifyError(PCWSTR pszErrorMessage, HRESULT hrErr);
+
+protected:
+	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+public:
+	WORD x, y;
+	WORD windowW;
+	WORD windowH;
 	HWND hVideo;
+
+private:
 	BOOL repaintClient = TRUE;
 	VideoPlayer* videoPlayer;
+	VideoTimeLineView* videoTimeLineView;
 };
 

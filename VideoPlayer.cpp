@@ -6,6 +6,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 
 #include "VideoPlayer.h"
+#include "framework.h"
 #include <assert.h>
 
 #pragma comment(lib, "shlwapi")
@@ -144,7 +145,7 @@ ULONG VideoPlayer::Release()
 HRESULT VideoPlayer::OpenURL(const WCHAR* sURL)
 {
     // 1. Create a new media session.
-    // 2. Create the media source.
+    // 2. Create the    media source.
     // 3. Create the topology.
     // 4. Queue the topology [asynchronous]
     // 5. Start playback [asynchronous - does not happen in this method.]
@@ -262,16 +263,13 @@ HRESULT VideoPlayer::Repaint()
 //
 //  Call this method if the size of the video window changes.
 
-HRESULT VideoPlayer::ResizeVideo(WORD width, WORD height)
+HRESULT VideoPlayer::ResizeVideo(RECT& rect)
 {
     if (m_pVideoDisplay)
     {
         // Set the destination rectangle.
-        // Leave the default source rectangle (0,0,1,1).
-
-        RECT rcDest = { 0, 0, width, height };
-
-        return m_pVideoDisplay->SetVideoPosition(NULL, &rcDest);
+        MFVideoNormalizedRect srcRect = { 0.0f, 0.0f, 1.0f, 1.0f }; // 비디오 전체 사용
+        return m_pVideoDisplay->SetVideoPosition(&srcRect, &rect);
     }
     else
     {
@@ -315,6 +313,8 @@ HRESULT VideoPlayer::Invoke(IMFAsyncResult* pResult)
         {
             goto done;
         }
+
+        readyVideoRenderer.Execute<void>();
     }
 
     // Check the application state. 
@@ -894,9 +894,6 @@ HRESULT CreatePlaybackTopology(
     {
         goto done;
     }
-
-
-
 
     // Get the number of streams in the media source.
     hr = pPD->GetStreamDescriptorCount(&cSourceStreams);
