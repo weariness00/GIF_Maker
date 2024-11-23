@@ -18,6 +18,14 @@
 #define TimeLine_Background_PIC         1002
 #define ID_32771                        32771
 #define WindowFileLoad                  32772
+#define ID_32773                        32773
+#define ID_32774                        32774
+#define ID_Menu                         32775
+#define ID_Menu32776                    32776
+#define ID_GIF_32777                    32777
+#define he                              32778
+#define HIGH_QUALITY_GIF                32779
+#define LOW_QUALITY_GIF                 32780
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -26,7 +34,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        132
-#define _APS_NEXT_COMMAND_VALUE         32773
+#define _APS_NEXT_COMMAND_VALUE         32781
 #define _APS_NEXT_CONTROL_VALUE         1003
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

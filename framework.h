@@ -32,9 +32,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <list>
 
 #include "TDelegate.h"
+#include "WindowObject.h"
 #include "ImageController.h"
+#include "DoubleBufferingWindow.h"
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -96,7 +99,7 @@ inline HWND CreateChildWindow(
     HINSTANCE hInstance,                // 인스턴스 핸들
     LPCWSTR className,                  // 자식 윈도우 클래스 이름
     WNDPROC childWndProc,               // 자식 윈도우 프로시저
-    int x, int y, int width, int height, // 자식 윈도우 위치 및 크기
+    RECT& rect, // 자식 윈도우 위치 및 크기
     LPVOID data = nullptr,
     COLORREF color = RGB( 0,0,255 )
 ) {
@@ -126,6 +129,13 @@ inline HWND CreateChildWindow(
         MessageBoxW(NULL, errorMessage.c_str(), L"Error", MB_ICONERROR);
         return NULL;
     }
+
+    // x,y 위치에서 w,h 크기만큼 그려주도록 변환
+    int x = rect.left;
+    int y = rect.top;
+    int width = rect.right + rect.left;
+    int height = rect.bottom + rect.top;
+
     // 자식 윈도우 생성
     HWND hWndChild = CreateWindowExW(
         WS_EX_TOPMOST,

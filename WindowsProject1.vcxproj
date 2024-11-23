@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DoubleBufferingWindow.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GIF.h" />
     <ClInclude Include="ImageController.h" />
@@ -138,9 +139,12 @@
     <ClInclude Include="VideoTimeLineView.h" />
     <ClInclude Include="VideoView.h" />
     <ClInclude Include="WindowExplorer.h" />
+    <ClInclude Include="WindowObject.h" />
     <ClInclude Include="WindowsProject1.h" />
+    <ClInclude Include="WindowTransform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DoubleBufferingWindow.cpp" />
     <ClCompile Include="GIF.cpp" />
     <ClCompile Include="ImageController.cpp" />
     <ClCompile Include="TDelegate.cpp" />
@@ -148,7 +152,9 @@
     <ClCompile Include="VideoTimeLineView.cpp" />
     <ClCompile Include="VideoView.cpp" />
     <ClCompile Include="WindowExplorer.cpp" />
+    <ClCompile Include="WindowObject.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
+    <ClCompile Include="WindowTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MainView.rc" />

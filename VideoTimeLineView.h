@@ -1,13 +1,13 @@
 #pragma once
 #include "framework.h"
 
-class VideoTimeLineView
+class VideoTimeLineView : public WindowObject
 {
 public:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
-	VideoTimeLineView(HWND hwnd);
+	VideoTimeLineView(HWND hwnd, RECT rect);
 	~VideoTimeLineView();
 
 	void OnResize(RECT& rect);
@@ -17,8 +17,12 @@ protected:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	int x, y;
-	int windowW;
-	int windowH;
 	HWND hVideoTimeLine;
+	DoubleBufferingWindow* dbWindow;
+
+	ImageController backgroundImage;
+	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
+
+	std::vector<ImageController*> lineImages;
+	const std::wstring lineImagePath = L"Image\\TimeLine\\Line.png";
 };

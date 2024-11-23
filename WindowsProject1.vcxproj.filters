@@ -45,9 +45,6 @@
     <ClInclude Include="VideoPlayer.h">
       <Filter>Video</Filter>
     </ClInclude>
-    <ClInclude Include="TDelegate.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="WindowExplorer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -55,14 +52,23 @@
       <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="ImageController.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowTransform.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowObject.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="DoubleBufferingWindow.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="TDelegate.h">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsProject1.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TDelegate.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="WindowExplorer.cpp">
@@ -81,7 +87,19 @@
       <Filter>Video</Filter>
     </ClCompile>
     <ClCompile Include="ImageController.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowTransform.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowObject.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleBufferingWindow.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="TDelegate.cpp">
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

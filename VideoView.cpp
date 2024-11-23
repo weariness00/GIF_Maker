@@ -27,21 +27,21 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
 {
     RECT rect;
     GetClientRect(hwnd, &rect);
-    x = y = 0;
-    windowW = rect.right - rect.left;
-	windowH = 400;
+    wTransform.SetRect({ 0,0,rect.right - rect.left , 400 });
+    auto wRect = wTransform.GetWorldRect();
     hVideo = CreateChildWindow(
         hwnd,
         GetModuleHandle(nullptr),
         L"VideoView",
         VideoViewWindowProc,
-        x, y,
-        windowW, windowH,
+        *wRect,
         this);
     OnCreateWindow(hVideo);
 
-    videoTimeLineView = new VideoTimeLineView(hwnd);
-    videoTimeLineView->OnResize(0,400, windowW, 400);
+    videoTimeLineView = new VideoTimeLineView(
+        hwnd,
+        { 0,400, wRect->right, 400 });
+    SetChild(videoTimeLineView);
 }
 
 VideoView::~VideoView()
@@ -108,10 +108,10 @@ LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     return 0;
 }
 
-void VideoView::OnFileOpen(std::wstring& path) const
+void VideoView::OnFileOpen(std::wstring& path)
 {
+    videoFilePath = path;
     videoPlayer->OpenURL(path.c_str());
-    //OnResize(windowW, windowH);
 }
 
 LRESULT VideoView::OnCreateWindow(HWND hwnd)

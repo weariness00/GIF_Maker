@@ -2,7 +2,7 @@
 #include "VideoPlayer.h"
 #include "VideoTimeLineView.h"
 
-class VideoView
+class VideoView : public WindowObject
 {
 private:
 	static LRESULT CALLBACK VideoViewWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -12,7 +12,7 @@ public:
 	~VideoView();
 
 public:
-	void OnFileOpen(std::wstring& path) const;
+	void OnFileOpen(std::wstring& path);
 	LRESULT OnCreateWindow(HWND hwnd);
 	void OnPaint();
 	void OnResize(RECT& rect) const;
@@ -22,18 +22,18 @@ public:
 	void UpdateUI(VideoPlayerState state);
 	void NotifyError(PCWSTR pszErrorMessage, HRESULT hrErr);
 
+	std::wstring* GetVideoPath() { return &videoFilePath; }
 protected:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
-	WORD x, y;
-	WORD windowW;
-	WORD windowH;
 	HWND hVideo;
 
 private:
 	BOOL repaintClient = TRUE;
 	VideoPlayer* videoPlayer;
 	VideoTimeLineView* videoTimeLineView;
+
+	std::wstring videoFilePath;
 };
 

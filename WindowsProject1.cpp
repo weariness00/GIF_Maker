@@ -72,7 +72,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WINDOWSPROJECT1, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
-
+			
     // 애플리케이션 초기화를 수행합니다:
     if (!InitInstance (hInstance, nCmdShow))
     {
@@ -86,6 +86,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // 기본 메시지 루프입니다:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
+        for (auto object : WindowObject::objects)
+        {
+            if (object->GetParent()) continue;
+            object->UpdateWindowTransform(nullptr);
+        }
+
+        for (auto object : WindowObject::objects)
+        {
+            object->Update();
+        }
+
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             TranslateMessage(&msg);
@@ -184,6 +195,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
+            case HIGH_QUALITY_GIF:{
+                auto outputFile = std::wstring(L"임시");
+                testGIF.Make(*testVideoView->GetVideoPath(), outputFile);
+                break;
+            }
             case WindowFileLoad:
                 windowExplorer.FileOpenDialog(hWnd);
                 break;
