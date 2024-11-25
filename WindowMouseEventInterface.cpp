@@ -1,6 +1,8 @@
 #include "WindowMouseEventInterface.h"
 #include "WindowObject.h"
 
+std::map<HDC, WindowObject*> WindowMouseEventInterface::workEventMap;
+
 WindowMouseEventInterface::WindowMouseEventInterface()
 {
     isDragging = false;
@@ -10,7 +12,7 @@ WindowMouseEventInterface::~WindowMouseEventInterface()
 {
 }
 
-void WindowMouseEventInterface::OnMouseEvent(UINT massage, WindowObject* winObj, LPARAM lParam)
+void WindowMouseEventInterface::OnMouseEvent(UINT massage, HDC hdc, WindowObject* winObj, LPARAM lParam)
 {
     MouseEvent mouseEvent;
     mouseEvent.x = LOWORD(lParam);
@@ -20,39 +22,42 @@ void WindowMouseEventInterface::OnMouseEvent(UINT massage, WindowObject* winObj,
     switch (massage)
     {
     case WM_LBUTTONDOWN:
-        isOnMouse = CheckOnMouse(winObj, mouseEvent);
-        if (isOnMouse == true && isDragging == false)
+        if (workEventMap[hdc] != nullptr) break;
+        if (CheckOnMouse(winObj, mouseEvent))
         {
+            workEventMap[hdc] = winObj;
             isDragging = true;
-            MouseDownEvent(winObj, mouseEvent);
+            MouseDownEvent(mouseEvent);
         }
         break;
     case WM_MOUSEMOVE:
+        if (workEventMap[hdc] != winObj) break;
         if (isDragging)
         {
-            MousePressEvent(winObj, mouseEvent);
+            MousePressEvent(mouseEvent);
         }
         break;
     case WM_LBUTTONUP:
-        isOnMouse = CheckOnMouse(winObj, mouseEvent);
-        if (isOnMouse == false && isDragging == true)
+        if (workEventMap[hdc] != winObj) break;
+        workEventMap[hdc] = nullptr;
+        if (!CheckOnMouse(winObj, mouseEvent))
         {
-            MouseUpEvent(winObj, mouseEvent);
+            MouseUpEvent(mouseEvent);
         }
         isDragging = false;
         break;
     }
 }
 
-void WindowMouseEventInterface::MouseDownEvent(WindowObject* winObj, const MouseEvent& mouseEvent)
+void WindowMouseEventInterface::MouseDownEvent(const MouseEvent& mouseEvent)
 {
 }
 
-void WindowMouseEventInterface::MouseUpEvent(WindowObject* winObj, const MouseEvent& mouseEvent)
+void WindowMouseEventInterface::MouseUpEvent(const MouseEvent& mouseEvent)
 {
 }
 
-void WindowMouseEventInterface::MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent)
+void WindowMouseEventInterface::MousePressEvent(const MouseEvent& mouseEvent)
 {
 
 }
@@ -60,7 +65,7 @@ void WindowMouseEventInterface::MousePressEvent(WindowObject* winObj, const Mous
 bool WindowMouseEventInterface::CheckOnMouse(WindowObject* winObj, const MouseEvent& mouseEvent)
 {
     WindowTransform* wTransform = &winObj->wTransform;
-    auto position = wTransform->GetPosition();
+    auto position = wTransform->GetWorldPosition();
     auto size = wTransform->GetSize();
 
     return mouseEvent.x >= position.x && mouseEvent.x <= position.x + size.x &&

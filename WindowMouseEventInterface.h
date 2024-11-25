@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <Windows.h>
 #include <type_traits>
 
@@ -12,15 +13,18 @@ struct MouseEvent
 class WindowMouseEventInterface
 {
 public:
+	static std::map<HDC, WindowObject*> workEventMap;
+
+public:
 	WindowMouseEventInterface();
 	virtual ~WindowMouseEventInterface();
 
-	void OnMouseEvent(UINT massage, WindowObject* winObj, LPARAM lParam);
+	void OnMouseEvent(UINT massage, HDC hdc, WindowObject* winObj, LPARAM lParam);
 
 protected:
-	virtual void MouseDownEvent(WindowObject* winObj, const MouseEvent& mouseEvent);
-	virtual void MouseUpEvent(WindowObject* winObj, const MouseEvent& mouseEvent);
-	virtual void MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent);
+	virtual void MouseDownEvent(const MouseEvent& mouseEvent);
+	virtual void MouseUpEvent(const MouseEvent& mouseEvent);
+	virtual void MousePressEvent(const MouseEvent& mouseEvent);
 
 private:
 	bool CheckOnMouse(WindowObject* winObj, const MouseEvent& mouseEvent);
