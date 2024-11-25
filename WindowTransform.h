@@ -12,7 +12,8 @@ public:
 public:
 	void SetOwnerObject(WindowObject* ownerObj);
 
-	POINT GetPosition() const;
+	POINT GetWorldPosition() const;
+	POINT GetLocalPosition() const;
 	POINT GetSize() const;
 	RECT* GetWorldRect(bool isUpdate = true);
 	RECT* GetLocalRect() { return &localRect; }

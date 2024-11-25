@@ -14,7 +14,15 @@ void WindowTransform::SetOwnerObject(WindowObject* ownerObj)
 	ownerObject = ownerObj;
 }
 
-POINT WindowTransform::GetPosition() const
+POINT WindowTransform::GetWorldPosition() const
+{
+	auto rootObj = ownerObject->GetRoot();
+	rootObj->UpdateWindowTransform(nullptr);
+
+	return { worldRect.left, worldRect.top };
+}
+
+POINT WindowTransform::GetLocalPosition() const
 {
 	return position;
 }
