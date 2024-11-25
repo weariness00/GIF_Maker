@@ -48,7 +48,13 @@ void GIF::UpdateGIFFrame(HWND hWnd)
     InvalidateRect(hWnd, NULL, TRUE); // 화면 갱신 요청
 }
 
-int GIF::Make(std::wstring& inputFile, std::wstring& outputFile) const
+void GIF::SetTime(std::pair<float, float> times)
+{
+    startTime = times.first;
+    endTime = times.second;
+}
+
+int GIF::Make(std::wstring& inputFile, std::wstring& outputFile)
 {
     std::wstring curInputPath = inputFile;
     std::wstring curPalettePath = outputFile;
@@ -60,14 +66,43 @@ int GIF::Make(std::wstring& inputFile, std::wstring& outputFile) const
     WrapingQuotes(curPalettePath);
     WrapingQuotes(curOutputPath);
 
-    std::wstring paletteCommand = currentDirPath;
-    paletteCommand.append(L"\\ffmpeg.exe -i ").append(curInputPath).append(L" -vf \"fps = 30, scale = 1280:-1 : flags = lanczos, palettegen\" ").append(curPalettePath);
-    std::wstring gifCommand = currentDirPath;
-    gifCommand.append(L"\\ffmpeg.exe -i ").append(curInputPath).append(L" -i ").append(curPalettePath).append(L" -filter_complex \"fps = 30, scale = 1280:-1 : flags = lanczos[x]; [x] [1:v] paletteuse\" ").append(curOutputPath);
+    std::wstring startTimeStr = TimeFormat(startTime);
+    std::wstring endTimeStr = TimeFormat(endTime);
+
+    std::wstring paletteCommand =
+        currentDirPath + L"\\ffmpeg.exe" +
+        L" -ss " + startTimeStr +
+        L" -to " + endTimeStr +
+        L" -i " + curInputPath + 
+        L" -vf \"fps = 30, scale = 1280:-1 : flags = lanczos, palettegen\" "+ 
+        curPalettePath;
+    std::wstring gifCommand =
+        currentDirPath + L"\\ffmpeg.exe" +
+        L" -ss " + startTimeStr +
+        L" -to " + endTimeStr +
+        L" -i " + curInputPath + 
+        L" -i " + curPalettePath +
+        L" -filter_complex \"fps = 30, scale = 1280:-1 : flags = lanczos[x]; [x] [1:v] paletteuse\" " +curOutputPath;
     std::thread makeThread(&GIF::MakeThread, *this, paletteCommand, gifCommand);
 
     makeThread.detach();
     return 0;
+}
+
+std::wstring GIF::TimeFormat(const float seconds)
+{
+    int totalSeconds = static_cast<int>(seconds);  // 정수 초
+    int hours = totalSeconds / 3600;              // 시 계산
+    int minutes = (totalSeconds % 3600) / 60;     // 분 계산
+    int secs = totalSeconds % 60;                 // 초 계산
+    int milliseconds = static_cast<int>((seconds - totalSeconds) * 1000); // 밀리초 계산
+
+    std::wostringstream oss;
+    oss << std::setw(2) << std::setfill(L'0') << hours << L":"
+        << std::setw(2) << std::setfill(L'0') << minutes << L":"
+        << std::setw(2) << std::setfill(L'0') << secs << L"."
+        << std::setw(3) << std::setfill(L'0') << milliseconds;
+    return oss.str();
 }
 
 int GIF::MakeThread(const GIF& gif, std::wstring paletteCommand, std::wstring gifCommand)

@@ -15,7 +15,9 @@ public:
 	void LoadGIF(const WCHAR* _filepath);
 	void UpdateGIFFrame(HWND hWnd);
 
-	int Make(std::wstring& inputFile, std::wstring& outputFile) const;
+	void SetTime(std::pair<float, float> times);
+
+	int Make(std::wstring& inputFile, std::wstring& outputFile);
 
 public:
 	Image* gifImage = nullptr;
@@ -27,11 +29,14 @@ public:
 	TDelegate gifGenerateEvent;
 
 private:
+	std::wstring TimeFormat(const float seconds);
+
+private:
 	WCHAR* filepath;
 	int frameRate = 10; // 움짤의 프레임을 몇으로 할지
 	POINT gifViewPosition;
 	POINT gifViewSize;
-	int startTime = 0;
+	float startTime = 0;
 	int endTime = 0;
 };
 
