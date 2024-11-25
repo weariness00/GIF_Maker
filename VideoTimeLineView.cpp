@@ -34,6 +34,8 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
         rect,
         this,
         RGB(200,200,200));
+
+    pixelPerSecond = 100;
 }
 
 VideoTimeLineView::~VideoTimeLineView()
@@ -59,6 +61,19 @@ void VideoTimeLineView::OnResize(int _x, int _y, int _w, int _h)
     OnResize(r);
 }
 
+std::pair<float, float> VideoTimeLineView::GetTime() const
+{
+    auto x1 = timeBarImages[0]->wTransform.GetLocalPosition().x;
+    auto x2 = timeBarImages[1]->wTransform.GetLocalPosition().x;
+
+    auto minX = min(x1, x2);
+    auto maxX = max(x1, x2);
+    float startTime = minX / pixelPerSecond;
+    float endTime = maxX / pixelPerSecond;
+
+    return { startTime , endTime };
+}
+
 LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
@@ -70,7 +85,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			SetChild(&backgroundImage);
 
             // Time Image Associate Objects
-            timeAssociateObject.wTransform.SetPosition(40, 0);
+            timeAssociateObject.wTransform.SetPosition(100, 0);
 			SetChild(&timeAssociateObject);
 
             // Time Line
@@ -78,13 +93,12 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
             timeAssociateObject.SetChild(lineImages);
 
             // Time Start & End Line
-            for (auto& timeBarImage : timeBarImages)
+            for (int i = 0; i < 2; i++)
             {
-	            timeBarImage = new TimeBarImage(dbMemHDC);
-                timeBarImage->wTransform.SetPosition(100 ,0);
-                timeAssociateObject.SetChild(timeBarImage);
+                timeBarImages[i] = new TimeBarImage(dbMemHDC);
+                timeBarImages[i]->wTransform.SetPosition(i * 100, 0);
+                timeAssociateObject.SetChild(timeBarImages[i]);
             }
-
 			break;
 	    }
     case WM_DESTROY:
@@ -102,8 +116,10 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
     case WM_LBUTTONDOWN:
     case WM_MOUSEMOVE:
     case WM_LBUTTONUP:
-        for (auto& timeBarImage : timeBarImages)
-            timeBarImage->OnMouseEvent(uMsg, timeBarImage, lParam);
+        for (int i = 0; i < 2; i++)
+        {
+            timeBarImages[i]->OnMouseEvent(uMsg, dbWindow->GetMemHDC(), timeBarImages[i], lParam);
+        }
         break;
     case WM_MOUSEWHEEL:
 
@@ -178,8 +194,10 @@ void TimeBarImage::OnPaint(HDC hdc)
     timeBarImage.OnPaint(hdc);
 }
 
-void TimeBarImage::MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent)
+void TimeBarImage::MousePressEvent(const MouseEvent& mouseEvent)
 {
-	WindowMouseEventInterface::MousePressEvent(winObj, mouseEvent);
-    wTransform.SetPosition(mouseEvent.x, 0);
+	WindowMouseEventInterface::MousePressEvent(mouseEvent);
+    POINT worldPos = wTransform.GetWorldPosition();
+    POINT localPos = wTransform.GetLocalPosition();
+    wTransform.SetPosition(mouseEvent.x - (worldPos.x - localPos.x), 0);
 }

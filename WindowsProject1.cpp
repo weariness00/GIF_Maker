@@ -17,6 +17,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 WindowExplorer windowExplorer;
 GIF testGIF;
 VideoView* testVideoView;
+VideoTimeLineView* videoTimeLineView;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -34,8 +35,6 @@ void Init()
     windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
 		{
             testVideoView->OnFileOpen(inputFile);
-            //std::wstring outputFile = PreviewDirPath.append(L"\\output");
-            //testGIF.Make(inputFile, outputFile);
         }));
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
@@ -187,8 +186,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CREATE:
+	    {
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        int w = rect.right - rect.left;
         testVideoView = new VideoView(hWnd);
+        videoTimeLineView = new VideoTimeLineView(
+            hWnd,
+            { 0,400, w, 400 });
         break;
+	    }
+       
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -196,7 +204,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case HIGH_QUALITY_GIF:{
-                auto outputFile = std::wstring(L"임시");
+                auto outputFile = PreviewDirPath + L"\\임시";
+                testGIF.SetTime(videoTimeLineView->GetTime());
                 testGIF.Make(*testVideoView->GetVideoPath(), outputFile);
                 break;
             }

@@ -16,19 +16,22 @@ public:
 	void OnResize(RECT& rect);
 	void OnResize(int _x, int _y, int _w, int _h);
 
+	std::pair<float, float> GetTime() const;
+
 protected:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	HWND hVideoTimeLine;
 	DoubleBufferingWindow* dbWindow;
+	float pixelPerSecond; // N픽셀당 1초로 할 것인지
 
 	ImageController backgroundImage;
 	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
 
 	WindowObject timeAssociateObject;
 	LineImages* lineImages;
-	TimeBarImage* timeBarImages[1];
+	TimeBarImage* timeBarImages[2];
 };
 
 
@@ -54,7 +57,7 @@ public:
 
 	void OnPaint(HDC hdc);
 
-	void MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent) override;
+	void MousePressEvent(const MouseEvent& mouseEvent) override;
 
 private:
 	float time;

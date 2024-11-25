@@ -37,11 +37,6 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
         *wRect,
         this);
     OnCreateWindow(hVideo);
-
-    videoTimeLineView = new VideoTimeLineView(
-        hwnd,
-        { 0,400, wRect->right, 400 });
-    SetChild(videoTimeLineView);
 }
 
 VideoView::~VideoView()

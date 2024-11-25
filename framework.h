@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <list>
+#include <iomanip>
 
 #include "TDelegate.h"
 #include "WindowObject.h"
