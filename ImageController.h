@@ -6,6 +6,7 @@
 #include <tuple>
 
 #include "WindowObject.h"
+#include "WindowMouseEventInterface.h"
 
 #pragma comment(lib, "gdiplus.lib")
 

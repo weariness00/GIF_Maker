@@ -1,6 +1,9 @@
 #pragma once
 #include "framework.h"
 
+class LineImages;
+class TimeBarImage;
+
 class VideoTimeLineView : public WindowObject
 {
 public:
@@ -23,6 +26,40 @@ private:
 	ImageController backgroundImage;
 	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
 
+	LineImages* lineImages;
+
+	TimeBarImage* timeBarImages[1];
+};
+
+
+// Time Line 표시용 이미지
+class LineImages : public WindowObject
+{
+public:
+	LineImages(HDC hdc, int imageLength);
+	~LineImages();
+
+	void OnPaint(HDC hdc);
+
+private:
 	std::vector<ImageController*> lineImages;
 	const std::wstring lineImagePath = L"Image\\TimeLine\\Line.png";
+};
+
+class TimeBarImage : public WindowObject, public WindowMouseEventInterface
+{
+public:
+	TimeBarImage(HDC hdc);
+	~TimeBarImage();
+
+	void OnPaint(HDC hdc);
+
+	void MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent) override;
+
+private:
+	ImageController timeBarLineImage;
+	const std::wstring timeBarLineImagePath = L"Image\\TimeLine\\TimeBar Line.png";
+
+	ImageController timeBarImage;
+	const std::wstring timeBarImagePath = L"Image\\TimeLine\\Time Bar.png";
 };

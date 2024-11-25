@@ -54,8 +54,8 @@ void ImageController::OnPaint(HDC hdc)
 
         int x = rect->left;
         int y = rect->top;
-        int w = rect->right + rect->left;
-        int h = rect->bottom + rect->top;
+        int w = rect->right;
+        int h = rect->bottom;
 
         if(windowType == Window)
             graphic->DrawImage(image, x, y, w, h);

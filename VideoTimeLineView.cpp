@@ -25,6 +25,7 @@ LRESULT VideoTimeLineView::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 {
+    wTransform.SetSize(rect.right, rect.bottom);
     hVideoTimeLine = CreateChildWindow(
         hwnd,
         GetModuleHandle(nullptr),
@@ -62,43 +63,44 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 {
     switch (uMsg) {
     case WM_CREATE:{
-        RECT r;
-        GetClientRect(hVideoTimeLine, &r);
-        GetClientRect(hWnd, &r);
-        dbWindow = new DoubleBufferingWindow(hWnd);
-        auto dbMemHDC = dbWindow->GetMemHDC();
-        backgroundImage.CreateImage(dbMemHDC, backgroundImagePath);
-        backgroundImage.wTransform.SetRect({ 0, 0, 1000, 1000 });
-        SetChild(&backgroundImage);
-        for (int i = 0; i < 1; i++)
-        {
-            ImageController* lineImage = new ImageController();
-            lineImage->wTransform.SetRect({ i * 10, 0, 5, 2000 });
-            SetChild(lineImage);
+			dbWindow = new DoubleBufferingWindow(hWnd);
+			auto dbMemHDC = dbWindow->GetMemHDC();
+			backgroundImage.wTransform.SetRect(0,0, wTransform.GetSize());
+			backgroundImage.CreateImage(dbMemHDC, backgroundImagePath);
+			SetChild(&backgroundImage);
 
-            lineImage->CreateImage(dbMemHDC, lineImagePath);
-            lineImages.emplace_back(lineImage);
-        }
-        break;
+            // Time Line
+            lineImages = new LineImages(dbMemHDC, 20);
+			SetChild(lineImages);
+
+            // Time Start & End Line
+            for (auto& timeBarImage : timeBarImages)
+            {
+	            timeBarImage = new TimeBarImage(dbMemHDC);
+                timeBarImage->wTransform.SetPosition(100 ,0);
+                SetChild(timeBarImage);
+            }
+
+			break;
 	    }
-    case WM_LBUTTONDOWN:
-        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
     case WM_PAINT:
-        RECT r;
-        GetClientRect(hVideoTimeLine, &r);
-        GetClientRect(hWnd, &r);
         dbWindow->OnPaint([&](const HDC hdc)
             {
                 backgroundImage.OnPaint(hdc);
-                for (auto lineImage : lineImages)
-                    lineImage->OnPaint(hdc);
+                lineImages->OnPaint(hdc);
+                for (auto& timeBarImage : timeBarImages)
+                    timeBarImage->OnPaint(hdc);
             });
         break;
-    //case WM_NCHITTEST:
-    //    break;
+    case WM_LBUTTONDOWN:
+    case WM_MOUSEMOVE:
+    case WM_LBUTTONUP:
+        for (auto& timeBarImage : timeBarImages)
+            timeBarImage->OnMouseEvent(uMsg, timeBarImage, lParam);
+        break;
     case WM_SIZING: 
         return TRUE;
     case WM_CHAR:
@@ -107,4 +109,63 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
     return 0;
+}
+
+
+//---------------------------------------------------------------------
+// Line Image
+LineImages::LineImages(HDC hdc, int imageLength)
+{
+    for (int i = 0; i < imageLength; i++)
+    {
+        ImageController* lineImage = new ImageController();
+        lineImage->wTransform.SetRect({ i * 60, 0, 5, 2000 });
+        lineImage->CreateImage(hdc, lineImagePath);
+        SetChild(lineImage);
+
+        lineImages.emplace_back(lineImage);
+    }
+}
+
+LineImages::~LineImages()
+{
+}
+
+void LineImages::OnPaint(HDC hdc)
+{
+    for (auto lineImage : lineImages)
+        lineImage->OnPaint(hdc);
+}
+
+TimeBarImage::TimeBarImage(HDC hdc)
+{
+    LONG defaultSize = 12;
+
+    wTransform.SetSize(defaultSize, 3000);
+
+    timeBarImage.CreateImage(hdc, timeBarImagePath);
+    timeBarImage.wTransform.SetPosition(-defaultSize / 2, 0);
+    timeBarImage.wTransform.SetSize(defaultSize, defaultSize);
+    SetChild(&timeBarImage);
+
+    timeBarLineImage.CreateImage(hdc, timeBarLineImagePath);
+    timeBarLineImage.wTransform.SetPosition(-defaultSize / 4, 0);
+    timeBarLineImage.wTransform.SetSize(defaultSize / 2, 3000);
+    SetChild(&timeBarLineImage);
+}
+
+TimeBarImage::~TimeBarImage()
+{
+}
+
+void TimeBarImage::OnPaint(HDC hdc)
+{
+    timeBarLineImage.OnPaint(hdc);
+    timeBarImage.OnPaint(hdc);
+}
+
+void TimeBarImage::MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent)
+{
+	WindowMouseEventInterface::MousePressEvent(winObj, mouseEvent);
+    wTransform.SetPosition(mouseEvent.x, 0);
 }
