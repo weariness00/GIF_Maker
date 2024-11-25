@@ -51,6 +51,6 @@ void WindowObject::UpdateWindowTransform(const RECT* worldRect)
 	else
 		wTransform.UpdateWorldTransform(nullptr);
 
-	if (sibling) sibling->UpdateWindowTransform(wTransform.GetWorldRect(false));
+	if (sibling) sibling->UpdateWindowTransform(worldRect);
 	if (child) child->UpdateWindowTransform(wTransform.GetWorldRect(false));
 }

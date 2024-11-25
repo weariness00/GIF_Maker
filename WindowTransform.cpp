@@ -14,6 +14,16 @@ void WindowTransform::SetOwnerObject(WindowObject* ownerObj)
 	ownerObject = ownerObj;
 }
 
+POINT WindowTransform::GetPosition() const
+{
+	return position;
+}
+
+POINT WindowTransform::GetSize() const
+{
+	return size;
+}
+
 RECT* WindowTransform::GetWorldRect(bool isUpdate)
 {
 	if(isUpdate)
@@ -25,9 +35,27 @@ RECT* WindowTransform::GetWorldRect(bool isUpdate)
 	return &worldRect;
 }
 
+void WindowTransform::SetPosition(const POINT& _position)
+{
+	position = _position;
+	localRect.left = _position.x;
+	localRect.top = _position.y;
+}
+
+void WindowTransform::SetSize(const POINT& _size)
+{
+	size = _size;
+	localRect.right = size.x;
+	localRect.bottom = size.y;
+}
+
 void WindowTransform::SetRect(const RECT& rect)
 {
 	localRect = rect;
+	position.x = rect.left;
+	position.y = rect.top;
+	size.x = rect.right;
+	size.y = rect.bottom;
 }
 
 void WindowTransform::UpdateWorldTransform(const RECT* parentRect)

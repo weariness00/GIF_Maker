@@ -135,10 +135,12 @@
     <ClInclude Include="MainView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
+    <ClInclude Include="TextController.h" />
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="VideoTimeLineView.h" />
     <ClInclude Include="VideoView.h" />
     <ClInclude Include="WindowExplorer.h" />
+    <ClInclude Include="WindowMouseEventInterface.h" />
     <ClInclude Include="WindowObject.h" />
     <ClInclude Include="WindowsProject1.h" />
     <ClInclude Include="WindowTransform.h" />
@@ -148,10 +150,12 @@
     <ClCompile Include="GIF.cpp" />
     <ClCompile Include="ImageController.cpp" />
     <ClCompile Include="TDelegate.cpp" />
+    <ClCompile Include="TextController.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="VideoTimeLineView.cpp" />
     <ClCompile Include="VideoView.cpp" />
     <ClCompile Include="WindowExplorer.cpp" />
+    <ClCompile Include="WindowMouseEventInterface.cpp" />
     <ClCompile Include="WindowObject.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
     <ClCompile Include="WindowTransform.cpp" />
