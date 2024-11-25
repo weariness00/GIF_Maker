@@ -22,6 +22,9 @@
     <Filter Include="Framework">
       <UniqueIdentifier>{a9cdadfe-6fe5-4582-a56a-8dbca032f4b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\GDI">
+      <UniqueIdentifier>{7ad134eb-c3c7-441f-924e-d007aa1b7867}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -51,9 +54,6 @@
     <ClInclude Include="VideoTimeLineView.h">
       <Filter>Video</Filter>
     </ClInclude>
-    <ClInclude Include="ImageController.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="WindowTransform.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -65,6 +65,15 @@
     </ClInclude>
     <ClInclude Include="TDelegate.h">
       <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="TextController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageController.h">
+      <Filter>Framework\GDI</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowMouseEventInterface.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +95,6 @@
     <ClCompile Include="VideoTimeLineView.cpp">
       <Filter>Video</Filter>
     </ClCompile>
-    <ClCompile Include="ImageController.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="WindowTransform.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -100,6 +106,15 @@
     </ClCompile>
     <ClCompile Include="TDelegate.cpp">
       <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="TextController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageController.cpp">
+      <Filter>Framework\GDI</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowMouseEventInterface.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
