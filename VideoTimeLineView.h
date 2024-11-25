@@ -26,8 +26,8 @@ private:
 	ImageController backgroundImage;
 	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
 
+	WindowObject timeAssociateObject;
 	LineImages* lineImages;
-
 	TimeBarImage* timeBarImages[1];
 };
 
@@ -57,6 +57,8 @@ public:
 	void MousePressEvent(WindowObject* winObj, const MouseEvent& mouseEvent) override;
 
 private:
+	float time;
+
 	ImageController timeBarLineImage;
 	const std::wstring timeBarLineImagePath = L"Image\\TimeLine\\TimeBar Line.png";
 

@@ -69,16 +69,20 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			backgroundImage.CreateImage(dbMemHDC, backgroundImagePath);
 			SetChild(&backgroundImage);
 
+            // Time Image Associate Objects
+            timeAssociateObject.wTransform.SetPosition(40, 0);
+			SetChild(&timeAssociateObject);
+
             // Time Line
-            lineImages = new LineImages(dbMemHDC, 20);
-			SetChild(lineImages);
+            lineImages = new LineImages(dbMemHDC, 30);
+            timeAssociateObject.SetChild(lineImages);
 
             // Time Start & End Line
             for (auto& timeBarImage : timeBarImages)
             {
 	            timeBarImage = new TimeBarImage(dbMemHDC);
                 timeBarImage->wTransform.SetPosition(100 ,0);
-                SetChild(timeBarImage);
+                timeAssociateObject.SetChild(timeBarImage);
             }
 
 			break;
@@ -101,6 +105,9 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
         for (auto& timeBarImage : timeBarImages)
             timeBarImage->OnMouseEvent(uMsg, timeBarImage, lParam);
         break;
+    case WM_MOUSEWHEEL:
+
+        break;
     case WM_SIZING: 
         return TRUE;
     case WM_CHAR:
@@ -116,9 +123,12 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 // Line Image
 LineImages::LineImages(HDC hdc, int imageLength)
 {
+    name = "Images Parent";
+
     for (int i = 0; i < imageLength; i++)
     {
         ImageController* lineImage = new ImageController();
+        lineImage->name = "Line Image";
         lineImage->wTransform.SetRect({ i * 60, 0, 5, 2000 });
         lineImage->CreateImage(hdc, lineImagePath);
         SetChild(lineImage);
@@ -137,8 +147,12 @@ void LineImages::OnPaint(HDC hdc)
         lineImage->OnPaint(hdc);
 }
 
+//---------------------------------------------------------------------
+// 
 TimeBarImage::TimeBarImage(HDC hdc)
 {
+    name = "Time Bar Images Parent";
+
     LONG defaultSize = 12;
 
     wTransform.SetSize(defaultSize, 3000);

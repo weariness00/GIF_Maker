@@ -1,10 +1,12 @@
 #pragma once
+#include <string>
 #include "WindowTransform.h"
 #include <vector>
 
 class WindowObject
 {
 public:
+	static int ObjectID;
 	static std::vector<WindowObject*> objects;
 
 public:
@@ -20,6 +22,8 @@ public:
 	virtual void Update();
 
 public:
+	int id;
+	std::string name;
 	WindowTransform wTransform;
 
 private:

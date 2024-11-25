@@ -1,12 +1,16 @@
 #include "WindowObject.h"
+#include <typeinfo>
 
+int WindowObject::ObjectID = 0;
 std::vector<WindowObject*> WindowObject::objects;
 
 WindowObject::WindowObject()
 {
+	id = ObjectID++;
+	name = typeid(this).name();
+
 	root = this;
 	wTransform.SetOwnerObject(this);
-
 
 	objects.emplace_back(this);
 }
@@ -32,9 +36,11 @@ bool WindowObject::SetChild(WindowObject* childObj)
 			s = s->sibling;
 		}
 		s->sibling = childObj;
+		childObj->parent = this;
 	}
 	else
 	{
+		childObj->parent = this;
 		child = childObj;
 	}
 	return true;
