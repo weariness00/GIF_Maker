@@ -21,6 +21,9 @@ public:
 	void UpdateWindowTransform(const RECT* worldRect);
 	virtual void Update();
 
+private:
+	void UpdateRootRecursively(WindowObject* node, WindowObject* newRoot);
+
 public:
 	int id;
 	std::string name;
