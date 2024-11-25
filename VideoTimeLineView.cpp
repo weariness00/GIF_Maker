@@ -89,7 +89,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			SetChild(&timeAssociateObject);
 
             // Time Line
-            lineImages = new LineImages(dbMemHDC, 30);
+            lineImages = new LineImages(dbMemHDC, 0);
             timeAssociateObject.SetChild(lineImages);
 
             // Time Start & End Line
