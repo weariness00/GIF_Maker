@@ -25,6 +25,7 @@ LRESULT VideoTimeLineView::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 {
+    pixelPerSecond = 100;
     wTransform.SetSize(rect.right, rect.bottom);
     hVideoTimeLine = CreateChildWindow(
         hwnd,
@@ -34,8 +35,6 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
         rect,
         this,
         RGB(200,200,200));
-
-    pixelPerSecond = 100;
 }
 
 VideoTimeLineView::~VideoTimeLineView()
@@ -89,8 +88,9 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			SetChild(&timeAssociateObject);
 
             // Time Line
-            lineImages = new LineImages(dbMemHDC, 0);
-            timeAssociateObject.SetChild(lineImages);
+            timeLineObjects = new TimeLineObjects(dbMemHDC, 30);
+            timeLineObjects->SetPixelPerSecondsTimeText(pixelPerSecond);
+            timeAssociateObject.SetChild(timeLineObjects);
 
             // Time Start & End Line
             for (int i = 0; i < 2; i++)
@@ -108,7 +108,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
         dbWindow->OnPaint([&](const HDC hdc)
             {
                 backgroundImage.OnPaint(hdc);
-                lineImages->OnPaint(hdc);
+                timeLineObjects->OnPaint(hdc);
                 for (auto& timeBarImage : timeBarImages)
                     timeBarImage->OnPaint(hdc);
             });
@@ -134,14 +134,42 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
     return 0;
 }
 
-
 //---------------------------------------------------------------------
-// Line Image
-LineImages::LineImages(HDC hdc, int imageLength)
+// Time Line Image
+// Time Line Text
+std::wstring TimeLineObjects::TimeFormat(const float seconds)
 {
-    name = "Images Parent";
+    int totalSeconds = static_cast<int>(seconds);  // 정수 초
+    int hours = totalSeconds / 3600;              // 시 계산
+    int minutes = (totalSeconds % 3600) / 60;     // 분 계산
+    int secs = totalSeconds % 60;                 // 초 계산
+    int milliseconds = static_cast<int>((seconds - totalSeconds) * 1000); // 밀리초 계산
 
-    for (int i = 0; i < imageLength; i++)
+    std::wostringstream oss;
+    if (hours > 0)
+        oss << std::setw(2) << std::setfill(L'0') << hours << L":";
+    oss << std::setw(2) << std::setfill(L'0') << minutes << L":"
+        << std::setw(2) << std::setfill(L'0') << secs;
+        //<< std::setw(3) << std::setfill(L'0') << milliseconds;
+    return oss.str();
+}
+
+TimeLineObjects::TimeLineObjects(HDC hdc, int objectLength)
+{
+    name = "Time Line Objects Parent";
+
+    timeTextBoxSizeX = 30;
+    for (int i = 0; i < objectLength; i++)
+    {
+        TextController* timeText = new TextController();
+        timeText->name = "Time Text";
+        timeText->wTransform.SetRect(i * 60 - timeTextBoxSizeX/2, 0, timeTextBoxSizeX, 10);
+        SetChild(timeText);
+
+        timeTexts.emplace_back(timeText);
+    }
+
+    for (int i = 0; i < objectLength; i++)
     {
         ImageController* lineImage = new ImageController();
         lineImage->name = "Line Image";
@@ -153,14 +181,26 @@ LineImages::LineImages(HDC hdc, int imageLength)
     }
 }
 
-LineImages::~LineImages()
+TimeLineObjects::~TimeLineObjects()
 {
 }
 
-void LineImages::OnPaint(HDC hdc)
+void TimeLineObjects::OnPaint(HDC hdc)
 {
     for (auto lineImage : lineImages)
         lineImage->OnPaint(hdc);
+
+    for (auto timeText : timeTexts)
+        timeText->OnPaint(hdc);
+}
+
+void TimeLineObjects::SetPixelPerSecondsTimeText(const int pixelPerSeconds)
+{
+    for (auto timeText : timeTexts)
+    {
+        auto pixelPosX = timeText->wTransform.GetLocalPosition().x + timeTextBoxSizeX / 2;
+        timeText->text = TimeLineObjects::TimeFormat(float(pixelPosX) / pixelPerSeconds);
+    }
 }
 
 //---------------------------------------------------------------------

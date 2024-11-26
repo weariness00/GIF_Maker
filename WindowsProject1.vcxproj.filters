@@ -22,11 +22,11 @@
     <Filter Include="Framework">
       <UniqueIdentifier>{a9cdadfe-6fe5-4582-a56a-8dbca032f4b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework\GDI">
-      <UniqueIdentifier>{7ad134eb-c3c7-441f-924e-d007aa1b7867}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Framework\WinAPI">
       <UniqueIdentifier>{9dc9f9f9-8f54-44a1-afa8-b8a4afa727ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\UI">
+      <UniqueIdentifier>{7ad134eb-c3c7-441f-924e-d007aa1b7867}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,11 +60,8 @@
     <ClInclude Include="TDelegate.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="TextController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ImageController.h">
-      <Filter>Framework\GDI</Filter>
+      <Filter>Framework\UI</Filter>
     </ClInclude>
     <ClInclude Include="WindowMouseEventInterface.h">
       <Filter>Framework\WinAPI</Filter>
@@ -77,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="DoubleBufferingWindow.h">
       <Filter>Framework\WinAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="TextController.h">
+      <Filter>Framework\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +101,8 @@
     <ClCompile Include="TDelegate.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="TextController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ImageController.cpp">
-      <Filter>Framework\GDI</Filter>
+      <Filter>Framework\UI</Filter>
     </ClCompile>
     <ClCompile Include="WindowMouseEventInterface.cpp">
       <Filter>Framework\WinAPI</Filter>
@@ -118,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="DoubleBufferingWindow.cpp">
       <Filter>Framework\WinAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="TextController.cpp">
+      <Filter>Framework\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

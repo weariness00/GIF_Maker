@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class LineImages;
+class TimeLineObjects;
 class TimeBarImage;
 
 class VideoTimeLineView : public WindowObject
@@ -30,21 +30,29 @@ private:
 	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
 
 	WindowObject timeAssociateObject;
-	LineImages* lineImages;
+	TimeLineObjects* timeLineObjects;
 	TimeBarImage* timeBarImages[2];
 };
 
 
 // Time Line 표시용 이미지
-class LineImages : public WindowObject
+class TimeLineObjects : public WindowObject
 {
+private:
+	static std::wstring TimeFormat(const float seconds);
+
 public:
-	LineImages(HDC hdc, int imageLength);
-	~LineImages();
+	TimeLineObjects(HDC hdc, int imageLength);
+	~TimeLineObjects();
 
 	void OnPaint(HDC hdc);
 
+	void SetPixelPerSecondsTimeText(const int pixelPerSeconds);
+
 private:
+	int timeTextBoxSizeX;
+	std::vector<TextController*> timeTexts;
+
 	std::vector<ImageController*> lineImages;
 	const std::wstring lineImagePath = L"Image\\TimeLine\\Line.png";
 };

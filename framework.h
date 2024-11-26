@@ -38,6 +38,7 @@
 #include "TDelegate.h"
 #include "WindowObject.h"
 #include "ImageController.h"
+#include "TextController.h"
 #include "DoubleBufferingWindow.h"
 
 #pragma comment(lib, "shlwapi.lib")
