@@ -11,16 +11,6 @@ TextController::~TextController()
 {
 }
 
-RECT* TextController::GetBoxSize()
-{
-	return &boxSizeRect;
-}
-
-void TextController::SetBoxSize(const RECT& rect)
-{
-	boxSizeRect = rect;
-}
-
 void TextController::SortLeft()
 {
 	WidthSortClean();
@@ -35,7 +25,13 @@ void TextController::SortMiddle()
 
 void TextController::OnPaint(const HDC hdc)
 {
-	DrawText(hdc, text.c_str(), -1, &boxSizeRect, outputFlag | widthSortFlag | heightSortFlag);
+	auto worldRect = wTransform.GetWorldRect();
+
+	SetBkMode(hdc, TRANSPARENT);
+
+	DrawText(hdc, text.c_str(), -1, worldRect, outputFlag | widthSortFlag | heightSortFlag);
+
+	SetBkMode(hdc, OPAQUE);
 }
 
 void TextController::WidthSortClean()

@@ -8,9 +8,6 @@ public:
 	TextController();
 	virtual ~TextController();
 
-	RECT* GetBoxSize();
-	void SetBoxSize(const RECT& rect);
-
 	void SortLeft();	
 	void SortMiddle();
 
@@ -20,10 +17,10 @@ private:
 	void WidthSortClean();
 	void HeightSortClean();
 
-private:
+public:
 	std::wstring text;
-	RECT boxSizeRect;
 
+private:
 	UINT widthSortFlag;
 	UINT heightSortFlag;
 	UINT outputFlag; // 텍스트 출력 방식
