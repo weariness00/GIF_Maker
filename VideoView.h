@@ -1,5 +1,5 @@
 #pragma once
-#include "VideoPlayer.h"
+#include "framework.h"
 #include "VideoTimeLineView.h"
 
 class VideoView : public WindowObject
@@ -32,7 +32,6 @@ public:
 private:
 	BOOL repaintClient = TRUE;
 	VideoPlayer* videoPlayer;
-	VideoTimeLineView* videoTimeLineView;
 
 	std::wstring videoFilePath;
 };

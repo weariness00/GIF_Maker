@@ -14,9 +14,14 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
+/* GDI 관련 데이터 */
+ULONG_PTR gdiplusToken;
+GdiplusStartupInput gdiplusStartupInput;
+GDIPlusManager gdiPlusManager;
+
 WindowExplorer windowExplorer;
 GIF testGIF;
-VideoView* testVideoView;
+VideoView* videoView;
 VideoTimeLineView* videoTimeLineView;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
@@ -27,6 +32,9 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void Init()
 {
+    // GDI+ 관련된 어떤 함수라도 사용 전에 해당 함수를 호출해야 합니다.
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
     currentDirPath = std::filesystem::current_path().wstring();
     auto dirPath = std::filesystem::current_path() / PreviewDirPath;
     std::filesystem::create_directory(dirPath);
@@ -34,7 +42,16 @@ void Init()
 
     windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
 		{
-            testVideoView->OnFileOpen(inputFile);
+            videoView->OnFileOpen(inputFile);
+            if (videoTimeLineView->videoCapture)
+                delete videoTimeLineView->videoCapture;
+            RECT r{ videoTimeLineView->pixelPerSecond, 0, 300, 100 };
+            VideoCaptureController* pVcc = new VideoCaptureController();
+            pVcc->OpenURL(inputFile);
+            pVcc->SetBitmapsRectToInterval(r);
+            pVcc->MakeVideoCaptures(1);
+            videoTimeLineView->SetChild(pVcc);
+            videoTimeLineView->videoCapture = pVcc;
         }));
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
@@ -102,6 +119,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+    Gdiplus::GdiplusShutdown(gdiplusToken);
     return (int) msg.wParam;
 }
 
@@ -190,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         RECT rect;
         GetClientRect(hWnd, &rect);
         int w = rect.right - rect.left;
-        testVideoView = new VideoView(hWnd);
+        videoView = new VideoView(hWnd);
         videoTimeLineView = new VideoTimeLineView(
             hWnd,
             { 0,400, w, 400 });
@@ -206,7 +225,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case HIGH_QUALITY_GIF:{
                 auto outputFile = PreviewDirPath + L"\\임시";
                 testGIF.SetTime(videoTimeLineView->GetTime());
-                testGIF.Make(*testVideoView->GetVideoPath(), outputFile);
+                testGIF.Make(*videoView->GetVideoPath(), outputFile);
                 break;
             }
             case WindowFileLoad:
@@ -224,7 +243,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_CHAR:
-        testVideoView->OnKeyPress(wParam);
+        videoView->OnKeyPress(wParam);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);

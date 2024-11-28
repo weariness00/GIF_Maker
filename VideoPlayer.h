@@ -9,35 +9,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <new>
-#include <windows.h>
-#include <shobjidl.h> 
-#include <shlwapi.h>
-#include <assert.h>
-#include <strsafe.h>
-
-// Media Foundation headers
-#pragma comment(lib, "mf.lib")
-#pragma comment(lib, "mfplat.lib")
-#pragma comment(lib, "mfuuid.lib")
-#pragma comment(lib, "evr.lib")
-#pragma comment(lib, "strmiids.lib")
-#include <d3d11.h>
-#include <mfapi.h>
-#include <mfidl.h>
-#include <mferror.h>
-#include <evr.h>
-#include <mfobjects.h>
+#include "MediaFunction.h"
 #include "TDelegate.h"
-
-template <class T> void SafeRelease(T** ppT)
-{
-    if (*ppT)
-    {
-        (*ppT)->Release();
-        *ppT = NULL;
-    }
-}
 
 const UINT WM_APP_PLAYER_EVENT = WM_APP + 1;
 
@@ -86,6 +59,8 @@ public:
     HRESULT       ResizeVideo(RECT& rect);
 
     BOOL          HasVideo() const { return (m_pVideoDisplay != NULL); }
+
+    double GetVideoDuration();
 
 protected:
 
