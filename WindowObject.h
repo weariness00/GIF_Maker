@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
 #include "WindowTransform.h"
+#include "WindowComponent.h"
 #include <vector>
 
-class WindowObject
+class WindowObject : public WindowComponent
 {
 public:
 	static int ObjectID;
