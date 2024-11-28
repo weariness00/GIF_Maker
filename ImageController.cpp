@@ -1,6 +1,5 @@
 #include "ImageController.h"
-
-std::map<HDC, std::tuple<Graphics*, int>> ImageController::graphics;
+#include "GDIPlusManager.h"
 
 ImageController::ImageController()
 {
@@ -13,39 +12,15 @@ ImageController::~ImageController()
     delete image;
 }
 
-void ImageController::CreateImage(HDC hdc, std::wstring path)
+void ImageController::CreateImage(std::wstring path)
 {
-    // GDI+ 관련된 어떤 함수라도 사용 전에 해당 함수를 호출해야 합니다.
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-
-    // image.png 파일을 이용하여 Image 객체를 생성합니다.
-    if(!graphics.contains(hdc))
-    {
-        graphics[hdc] = std::make_tuple(new Graphics(hdc), 1);
-    }
-
 	windowType = Window;
 	image = Image::FromFile(path.c_str());
 }
 
-void ImageController::Release(HDC hdc)
-{
-    delete image;
-    if (graphics.contains(hdc))
-    {
-        int refCount = std::get<1>(graphics[hdc]) - 1;
-        std::get<1>(graphics[hdc]) = refCount;
-        if(refCount <= 0)
-        {
-            graphics.erase(hdc);
-        }
-    }
-}
-
-
 void ImageController::OnPaint(HDC hdc)
 {
-    auto graphic = std::get<0>(graphics[hdc]);
+    auto graphic = GDIPlusManager::Instance->GetGraphics(hdc);
     if (!graphic) return;
 
     if (image)
