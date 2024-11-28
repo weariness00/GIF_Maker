@@ -35,9 +35,13 @@
 #include <list>
 #include <iomanip>
 
+#include "GDIPlusManager.h"
 #include "TDelegate.h"
 #include "WindowObject.h"
+#include "VideoPlayer.h"
+#include "VideoCaptureController.h"
 #include "ImageController.h"
+#include "BitmapController.h"
 #include "TextController.h"
 #include "DoubleBufferingWindow.h"
 

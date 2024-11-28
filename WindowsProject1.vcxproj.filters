@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Video">
-      <UniqueIdentifier>{e53bd1c2-a495-44d1-987f-8c502c301a91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DirectX">
       <UniqueIdentifier>{705a7335-1ba4-4c3a-9f3d-a9f847d7cd9c}</UniqueIdentifier>
     </Filter>
@@ -27,6 +24,12 @@
     </Filter>
     <Filter Include="Framework\UI">
       <UniqueIdentifier>{7ad134eb-c3c7-441f-924e-d007aa1b7867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Media Foundation">
+      <UniqueIdentifier>{e53bd1c2-a495-44d1-987f-8c502c301a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Media Foundation\Default">
+      <UniqueIdentifier>{cfd78ebf-ac35-480d-8987-06d72bf782f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,16 +49,13 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="VideoView.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoPlayer.h">
-      <Filter>Video</Filter>
+      <Filter>Media Foundation</Filter>
     </ClInclude>
     <ClInclude Include="WindowExplorer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="VideoTimeLineView.h">
-      <Filter>Video</Filter>
+      <Filter>Media Foundation</Filter>
     </ClInclude>
     <ClInclude Include="TDelegate.h">
       <Filter>Framework</Filter>
@@ -78,6 +78,27 @@
     <ClInclude Include="TextController.h">
       <Filter>Framework\UI</Filter>
     </ClInclude>
+    <ClInclude Include="MediaDebuging.h">
+      <Filter>Media Foundation\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaFunction.h">
+      <Filter>Media Foundation\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoPlayer.h">
+      <Filter>Media Foundation\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="BitmapController.h">
+      <Filter>Framework\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIPlusManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoCaptureController.h">
+      <Filter>Media Foundation\Default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsProject1.cpp">
@@ -90,13 +111,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="VideoView.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoPlayer.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoTimeLineView.cpp">
-      <Filter>Video</Filter>
+      <Filter>Media Foundation</Filter>
     </ClCompile>
     <ClCompile Include="TDelegate.cpp">
       <Filter>Framework</Filter>
@@ -119,6 +134,30 @@
     <ClCompile Include="TextController.cpp">
       <Filter>Framework\UI</Filter>
     </ClCompile>
+    <ClCompile Include="MediaDebuging.cpp">
+      <Filter>Media Foundation\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaFunction.cpp">
+      <Filter>Media Foundation\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>Media Foundation\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoTimeLineView.cpp">
+      <Filter>Media Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="BitmapController.cpp">
+      <Filter>Framework\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIPlusManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoCaptureController.cpp">
+      <Filter>Media Foundation\Default</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MainView.rc">
@@ -130,9 +169,6 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="WindowsProject1.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="bitmap1.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

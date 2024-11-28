@@ -128,17 +128,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BitmapController.h" />
     <ClInclude Include="DoubleBufferingWindow.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GDIPlusManager.h" />
     <ClInclude Include="GIF.h" />
     <ClInclude Include="ImageController.h" />
     <ClInclude Include="MainView.h" />
+    <ClInclude Include="MediaDebuging.h" />
+    <ClInclude Include="MediaFunction.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
     <ClInclude Include="TextController.h" />
+    <ClInclude Include="VideoCaptureController.h" />
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="VideoTimeLineView.h" />
     <ClInclude Include="VideoView.h" />
+    <ClInclude Include="WindowComponent.h" />
     <ClInclude Include="WindowExplorer.h" />
     <ClInclude Include="WindowMouseEventInterface.h" />
     <ClInclude Include="WindowObject.h" />
@@ -146,14 +152,20 @@
     <ClInclude Include="WindowTransform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BitmapController.cpp" />
     <ClCompile Include="DoubleBufferingWindow.cpp" />
+    <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="GIF.cpp" />
     <ClCompile Include="ImageController.cpp" />
+    <ClCompile Include="MediaDebuging.cpp" />
+    <ClCompile Include="MediaFunction.cpp" />
     <ClCompile Include="TDelegate.cpp" />
     <ClCompile Include="TextController.cpp" />
+    <ClCompile Include="VideoCaptureController.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="VideoTimeLineView.cpp" />
     <ClCompile Include="VideoView.cpp" />
+    <ClCompile Include="WindowComponent.cpp" />
     <ClCompile Include="WindowExplorer.cpp" />
     <ClCompile Include="WindowMouseEventInterface.cpp" />
     <ClCompile Include="WindowObject.cpp" />
@@ -164,7 +176,6 @@
     <ResourceCompile Include="MainView.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bitmap1.bmp" />
     <Image Include="small.ico" />
     <Image Include="WindowsProject1.ico" />
   </ItemGroup>

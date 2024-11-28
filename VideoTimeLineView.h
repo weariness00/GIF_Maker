@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "WindowMouseEventInterface.h"
 
 class TimeLineObjects;
 class TimeBarImage;
@@ -21,10 +22,13 @@ public:
 protected:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+public:
+	VideoCaptureController* videoCapture;
+	int pixelPerSecond; // N픽셀당 1초로 할 것인지
+
 private:
 	HWND hVideoTimeLine;
 	DoubleBufferingWindow* dbWindow;
-	float pixelPerSecond; // N픽셀당 1초로 할 것인지
 
 	ImageController backgroundImage;
 	const std::wstring backgroundImagePath = L"Image\\TimeLine\\Background.png";
@@ -47,7 +51,7 @@ public:
 
 	void OnPaint(HDC hdc);
 
-	void SetPixelPerSecondsTimeText(const int pixelPerSeconds);
+	void SetPixelPerSeconds(const int pixelPerSeconds);
 
 private:
 	int timeTextBoxSizeX;
