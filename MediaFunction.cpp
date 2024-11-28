@@ -315,6 +315,69 @@ done:
     return hr;
 }
 
+HRESULT ConvertToRGB32(IMFMediaBuffer* pBuffer, UINT32 width, UINT32 height)
+{
+    HRESULT hr = S_OK;
+
+    // 비디오 포맷을 32bpp RGB로 설정
+    GUID guidOutputFormat = MFVideoFormat_RGB32;  // 32bpp RGB 포맷
+
+    // pMediaType 생성 (MediaType는 비디오 포맷을 지정하는 객체)
+    IMFMediaType* pMediaType = nullptr;
+    hr = MFCreateMediaType(&pMediaType);  // IMFMediaType 객체 생성
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    // MediaType의 Subtype을 32bpp RGB로 설정
+    hr = pMediaType->SetGUID(MF_MT_SUBTYPE, guidOutputFormat);
+    if (FAILED(hr)) {
+        pMediaType->Release();  // 실패하면 메모리 해제
+        return hr;
+    }
+
+    // 비디오 프레임 크기 및 다른 파라미터 설정
+    hr = pMediaType->SetUINT32(MF_MT_AVG_BITRATE, width * height * 4);  // 비디오 크기에 따라 비트레이트 설정 (예시)
+    if (FAILED(hr)) {
+        pMediaType->Release();
+        return hr;
+    }
+
+    // 변환기를 사용하여 비디오 포맷을 변환하려면 MFT(Media Foundation Transform)가 필요합니다.
+    IMFTransform* pTransform = nullptr;
+    hr = MFCreateTransformActivate(&pTransform);
+    if (FAILED(hr)) {
+        pMediaType->Release();
+        return hr;
+    }
+
+    // 변환기의 입력 포맷을 설정
+    hr = pTransform->SetInputType(0, pMediaType, 0);
+    if (FAILED(hr)) {
+        pMediaType->Release();
+        pTransform->Release();
+        return hr;
+    }
+
+    // 변환기에서 출력 타입을 설정합니다.
+    hr = pTransform->SetOutputType(0, pMediaType, 0);
+    if (FAILED(hr)) {
+        pMediaType->Release();
+        pTransform->Release();
+        return hr;
+    }
+
+    // 버퍼에서 데이터를 읽고 변환을 진행합니다.
+    // 이 부분은 실제로 변환된 비디오 데이터를 처리하는 부분입니다.
+    // 예시로는 변환된 프레임을 새로운 버퍼로 저장하거나 출력할 수 있습니다.
+    
+    // 자원 해제
+    pMediaType->Release();
+    pTransform->Release();
+
+    return hr;
+}
+
 BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
     IMFSample* pSample = nullptr;
     IMFMediaBuffer* pBuffer = nullptr;

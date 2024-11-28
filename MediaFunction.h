@@ -69,6 +69,7 @@ HRESULT CreatePlaybackTopology(
     IMFTopology** ppTopology);         // Receives a pointer to the topology.
 
 // Get Frame & Bitmap To IMFSourceReader
+HRESULT ConvertToRGB32(IMFMediaBuffer* pBuffer, UINT32 width, UINT32 height);
 BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height);
 BYTE* ReadFrameAtTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds, UINT32& width, UINT32& height);
 Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height);
