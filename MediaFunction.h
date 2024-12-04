@@ -13,16 +13,19 @@
 #pragma comment(lib, "mfreadwrite.lib")
 #pragma comment(lib, "strmiids.lib")
 #pragma comment(lib, "gdiplus.lib")
-#include <d3d11.h>
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mfobjects.h>
 #include <mfplay.h>
 #include <mfreadwrite.h>
+#include <mftransform.h>
 #include <mferror.h>
 #include <propvarutil.h>
 #include <evr.h>
 #include <gdiplus.h>
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
 
 template <class T> void SafeRelease(T** ppT)
 {
@@ -69,16 +72,21 @@ HRESULT CreatePlaybackTopology(
     IMFTopology** ppTopology);         // Receives a pointer to the topology.
 
 // Get Frame & Bitmap To IMFSourceReader
-HRESULT ConvertToRGB32(IMFMediaBuffer* pBuffer, UINT32 width, UINT32 height);
 BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height);
 BYTE* ReadFrameAtTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds, UINT32& width, UINT32& height);
-Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height);
+Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height, const GUID& videoFormat);
 
-//IMFSourceReader Associate At Time
+//IMFSourceReader Associate Function
 HRESULT SeekToTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds);
 LONGLONG GetVideoCurrentTime(IMFSourceReader* pReader);
 LONGLONG GetVideoTime(IMFSourceReader* pReader);
+GUID GetVideoFormat(IMFSourceReader* pMediaSource);
 double ConvertNanoSecondsToSeconds(LONGLONG time100ns);
 LONGLONG ConvertSecondsToNanoSeconds(double seconds);
 
 CLSID* GetEncoderClsid(const WCHAR* format);
+
+//Video Format Associate Function
+HRESULT InitializeDecoder(IMFTransform** ppDecoder, const GUID& inputFormat);
+HRESULT ConfigureDecoder(IMFTransform* pDecoder, const GUID& inputFormat, UINT32 width, UINT32 height);
+HRESULT ProcessSample(IMFTransform* pDecoder, IMFSample* pInputSample, IMFSample** ppOutputSample);

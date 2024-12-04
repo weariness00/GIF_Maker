@@ -43,15 +43,15 @@ void Init()
     windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
 		{
             videoView->OnFileOpen(inputFile);
-            if (videoTimeLineView->videoCapture)
-                delete videoTimeLineView->videoCapture;
-            RECT r{ videoTimeLineView->pixelPerSecond, 0, 300, 100 };
-            VideoCaptureController* pVcc = new VideoCaptureController();
-            pVcc->OpenURL(inputFile);
-            pVcc->SetBitmapsRectToInterval(r);
-            pVcc->MakeVideoCaptures(1);
-            videoTimeLineView->SetChild(pVcc);
-            videoTimeLineView->videoCapture = pVcc;
+            //if (videoTimeLineView->videoCapture)
+            //    delete videoTimeLineView->videoCapture;
+            //RECT r{ videoTimeLineView->pixelPerSecond, 0, 300, 100 };
+            //VideoCaptureController* pVcc = new VideoCaptureController();
+            //pVcc->OpenURL(inputFile);
+            //pVcc->SetBitmapsRectToInterval(r);
+            //pVcc->MakeVideoCaptures(1);
+            //videoTimeLineView->SetChild(pVcc);
+            //videoTimeLineView->videoCapture = pVcc;
         }));
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()

@@ -1,4 +1,5 @@
 #include "MediaFunction.h"
+#include <iostream>
 
 //  Create a media source from a URL.
 HRESULT CreateMediaSource(PCWSTR sURL, IMFMediaSource** ppSource)
@@ -315,71 +316,10 @@ done:
     return hr;
 }
 
-HRESULT ConvertToRGB32(IMFMediaBuffer* pBuffer, UINT32 width, UINT32 height)
-{
-    HRESULT hr = S_OK;
-
-    // 비디오 포맷을 32bpp RGB로 설정
-    GUID guidOutputFormat = MFVideoFormat_RGB32;  // 32bpp RGB 포맷
-
-    // pMediaType 생성 (MediaType는 비디오 포맷을 지정하는 객체)
-    IMFMediaType* pMediaType = nullptr;
-    hr = MFCreateMediaType(&pMediaType);  // IMFMediaType 객체 생성
-    if (FAILED(hr)) {
-        return hr;
-    }
-
-    // MediaType의 Subtype을 32bpp RGB로 설정
-    hr = pMediaType->SetGUID(MF_MT_SUBTYPE, guidOutputFormat);
-    if (FAILED(hr)) {
-        pMediaType->Release();  // 실패하면 메모리 해제
-        return hr;
-    }
-
-    // 비디오 프레임 크기 및 다른 파라미터 설정
-    hr = pMediaType->SetUINT32(MF_MT_AVG_BITRATE, width * height * 4);  // 비디오 크기에 따라 비트레이트 설정 (예시)
-    if (FAILED(hr)) {
-        pMediaType->Release();
-        return hr;
-    }
-
-    // 변환기를 사용하여 비디오 포맷을 변환하려면 MFT(Media Foundation Transform)가 필요합니다.
-    IMFTransform* pTransform = nullptr;
-    hr = MFCreateTransformActivate(&pTransform);
-    if (FAILED(hr)) {
-        pMediaType->Release();
-        return hr;
-    }
-
-    // 변환기의 입력 포맷을 설정
-    hr = pTransform->SetInputType(0, pMediaType, 0);
-    if (FAILED(hr)) {
-        pMediaType->Release();
-        pTransform->Release();
-        return hr;
-    }
-
-    // 변환기에서 출력 타입을 설정합니다.
-    hr = pTransform->SetOutputType(0, pMediaType, 0);
-    if (FAILED(hr)) {
-        pMediaType->Release();
-        pTransform->Release();
-        return hr;
-    }
-
-    // 버퍼에서 데이터를 읽고 변환을 진행합니다.
-    // 이 부분은 실제로 변환된 비디오 데이터를 처리하는 부분입니다.
-    // 예시로는 변환된 프레임을 새로운 버퍼로 저장하거나 출력할 수 있습니다.
-    
-    // 자원 해제
-    pMediaType->Release();
-    pTransform->Release();
-
-    return hr;
-}
-
 BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
-    IMFSample* pSample = nullptr;
+    HRESULT hr;
+    IMFTransform* pDecoder = nullptr;
+	IMFSample* pSample = nullptr;
     IMFMediaBuffer* pBuffer = nullptr;
     BYTE* pData = nullptr;
     DWORD dwBufferSize = 0;
@@ -387,7 +327,7 @@ BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
     DWORD dwStreamFlags = 0;
     DWORD dwStreamIndex = 0;
     LONGLONG llTimestamp = 0;
-    HRESULT hr = pReader->ReadSample(
+    hr = pReader->ReadSample(
         MF_SOURCE_READER_FIRST_VIDEO_STREAM,
         0,
         &dwStreamIndex,
@@ -405,10 +345,43 @@ BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
         return nullptr;
     }
 
+    // 디코더 생성
+    auto videoFormat = GetVideoFormat(pReader);
+    hr = InitializeDecoder(&pDecoder, videoFormat);
+    if (FAILED(hr))
+    {
+        pSample->Release();
+        MessageBox(NULL, L"디코더 생성 실패", L"오류", MB_OK);
+        return nullptr;
+    }
+
+    hr = ConfigureDecoder(pDecoder, videoFormat, width, height);
+    if (FAILED(hr)) {
+        std::cerr << "Failed to configure decoder." << std::endl;
+        pDecoder->Release();
+        return nullptr;
+    }
+
+    // 압축된 샘플 로드 및 디코딩 (샘플 로드 코드는 생략)
+    IMFSample* pOutputSample = nullptr; // 디코딩된 샘플
+
+    hr = ProcessSample(pDecoder, pSample, &pOutputSample);
+    if (SUCCEEDED(hr)) {
+        std::cout << "Sample decoded successfully!" << std::endl;
+    }
+    else {
+        std::cerr << "Failed to decode sample." << std::endl;
+    }
+
+    // 리소스 해제
+    pSample->Release();
+    pSample = pOutputSample;
+
     hr = pSample->ConvertToContiguousBuffer(&pBuffer);
     if (FAILED(hr)) {
         MessageBox(NULL, L"버퍼 변환 실패", L"오류", MB_OK);
         pSample->Release();
+        pOutputSample->Release();
         return nullptr;
     }
 
@@ -417,31 +390,17 @@ BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
         MessageBox(NULL, L"버퍼 잠금 실패", L"오류", MB_OK);
         pBuffer->Release();
         pSample->Release();
+        pOutputSample->Release();
         return nullptr;
     }
 
     // 프레임의 크기를 가져옵니다.
     IMFMediaType* pMediaType = nullptr;
     pReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pMediaType);
-    // 비디오 포맷 확인
-    GUID subtype;
-    hr = pMediaType->GetGUID(MF_MT_SUBTYPE, &subtype);
-    if (FAILED(hr)) {
-        pMediaType->Release();
-        return nullptr;
-    }
-
-    if (subtype == MFVideoFormat_RGB32) {
-        MessageBox(NULL, L"비디오 포맷은 32bpp RGB입니다.", L"정보", MB_OK);
-    }
-    else {
-        MessageBox(NULL, L"비디오 포맷이 32bpp RGB가 아닙니다.", L"정보", MB_OK);
-    }
 
     MFGetAttributeSize(pMediaType, MF_MT_FRAME_SIZE, &width, &height);
     pMediaType->Release();
 
-    auto i = width * height;
     // 복사 후 해제
     BYTE* pFrameData = new BYTE[dwBufferSize];
     memcpy(pFrameData, pData, dwBufferSize);
@@ -449,6 +408,8 @@ BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height) {
     pBuffer->Unlock();
     pBuffer->Release();
     pSample->Release();
+    pOutputSample->Release();
+    pDecoder->Release();
 
     return pFrameData;
 }
@@ -472,17 +433,44 @@ BYTE* ReadFrameAtTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSecond
     return frameByte;
 }
 
-Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height)
+Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height, const GUID& videoFormat)
 {
+    // 픽셀 포맷과 스트라이드 계산
+    Gdiplus::PixelFormat pixelFormat = PixelFormatUndefined;
+    UINT stride = 0;
+
+    if (videoFormat == MFVideoFormat_RGB32) {
+        pixelFormat = PixelFormat32bppRGB;
+        stride = width * 4; // 32bpp = 4 bytes per pixel
+    }
+    else if (videoFormat == MFVideoFormat_YUY2) {
+        pixelFormat = PixelFormatUndefined; // YUY2는 GDI+ 직접 지원 불가
+        stride = width * 2; // 16bpp = 2 bytes per pixel
+    }
+    else if (videoFormat == MFVideoFormat_NV12) {
+        pixelFormat = PixelFormatUndefined; // NV12는 GDI+ 직접 지원 불가
+        stride = width; // NV12는 Y plane의 stride만 사용
+    }
+    else {
+        // 지원하지 않는 포맷 처리
+        return nullptr;
+    }
+
+    // 픽셀 포맷이 정의되지 않으면 변환이 필요
+    if (pixelFormat == PixelFormatUndefined) {
+        // TODO: GDI+가 지원하는 포맷으로 변환
+        return nullptr;
+    }
+
+    // GDI+ Bitmap 생성
     return new Gdiplus::Bitmap(
-        width,            // 너비 (비디오의 해상도에 맞춰 변경)
-        height,            // 높이
-        width * 4,        // 스트라이드 (너비 × 4)
-        PixelFormat32bppRGB, // 픽셀 포맷
-        frameByte            // 버퍼 데이터
+        width,          // 너비
+        height,         // 높이
+        stride,         // 스트라이드 (너비 × 바이트 수)
+        pixelFormat,    // 픽셀 포맷
+        frameByte       // 비디오 프레임 데이터
     );
 }
-
 
 HRESULT SeekToTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds) {
     PROPVARIANT var;
@@ -556,6 +544,27 @@ LONGLONG GetVideoTime(IMFSourceReader* pReader) {
     return time;
 }
 
+GUID GetVideoFormat(IMFSourceReader* pSourceReader)
+{
+    IMFMediaType* pMediaType = nullptr;
+
+    GUID subtype;
+    // 비디오 스트림의 Media Type 가져오기 (Stream Index 0 가정)
+    HRESULT hr = pSourceReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pMediaType);
+    if (FAILED(hr)) {
+        std::cerr << "Failed to get video media type" << std::endl;
+        return subtype;
+    }
+
+    // 포맷 정보
+    if (SUCCEEDED(pMediaType->GetGUID(MF_MT_SUBTYPE, &subtype))) {
+        std::wcout << L"Video Format: " << subtype.Data4 << std::endl;
+    }
+
+    if (pMediaType) pMediaType->Release();
+    return subtype;
+}
+
 double ConvertNanoSecondsToSeconds(LONGLONG time100ns) {
     return static_cast<double>(time100ns) / 10'000'000.0;  // 100ns → 초
 }
@@ -590,4 +599,90 @@ CLSID* GetEncoderClsid(const WCHAR* format) {
 
     free(pImageCodecInfo);
     return pClsid;
+}
+
+HRESULT InitializeDecoder(IMFTransform** ppDecoder, const GUID& inputFormat) {
+    IMFActivate** ppActivate = nullptr;
+    UINT32 count = 0;
+
+    MFT_REGISTER_TYPE_INFO inputType = { MFMediaType_Video, inputFormat };
+    MFT_REGISTER_TYPE_INFO outputType = { MFMediaType_Video, MFVideoFormat_RGB32 };
+
+    // MFTEnumEx로 디코더 리스트를 가져옴
+    HRESULT hr = MFTEnumEx(
+        MFT_CATEGORY_VIDEO_DECODER,
+        MFT_ENUM_FLAG_ALL,
+        &inputType,
+        &outputType,
+        &ppActivate,
+        &count
+    );
+    if (FAILED(hr) || count == 0) {
+        return E_FAIL; // 디코더를 찾지 못함
+    }
+
+    // 첫 번째 디코더 활성화
+    hr = ppActivate[0]->ActivateObject(IID_PPV_ARGS(ppDecoder));
+
+    // 리소스 해제
+    for (UINT32 i = 0; i < count; i++) {
+        ppActivate[i]->Release();
+    }
+    CoTaskMemFree(ppActivate);
+
+    return hr;
+}
+
+HRESULT ConfigureDecoder(IMFTransform* pDecoder, const GUID& inputFormat, UINT32 width, UINT32 height) {
+    HRESULT hr = S_OK;
+
+    // 입력 타입 설정
+    ComPtr<IMFMediaType> pInputType;
+    hr = MFCreateMediaType(&pInputType);
+    if (FAILED(hr)) return hr;
+
+    hr = pInputType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+    hr = pInputType->SetGUID(MF_MT_SUBTYPE, inputFormat); // 압축 포맷 (예: H264)
+    hr = MFSetAttributeSize(pInputType.Get(), MF_MT_FRAME_SIZE, width, height);
+    hr = MFSetAttributeRatio(pInputType.Get(), MF_MT_FRAME_RATE, 30, 1); // 기본 30 FPS
+
+    hr = pDecoder->SetInputType(0, pInputType.Get(), 0);
+    if (FAILED(hr)) return hr;
+
+    // 출력 타입 설정
+    ComPtr<IMFMediaType> pOutputType;
+    hr = MFCreateMediaType(&pOutputType);
+    if (FAILED(hr)) return hr;
+
+    hr = pOutputType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+    hr = pOutputType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32); // 출력은 항상 RGB32
+    hr = MFSetAttributeSize(pOutputType.Get(), MF_MT_FRAME_SIZE, width, height);
+    hr = MFSetAttributeRatio(pOutputType.Get(), MF_MT_FRAME_RATE, 30, 1);
+
+    hr = pDecoder->SetOutputType(0, pOutputType.Get(), 0);
+    return hr;
+}
+
+HRESULT ProcessSample(IMFTransform* pDecoder, IMFSample* pInputSample, IMFSample** ppOutputSample) {
+    HRESULT hr = S_OK;
+
+    // 디코더에 입력 샘플 전달
+    hr = pDecoder->ProcessInput(0, pInputSample, 0);
+    if (FAILED(hr)) return hr;
+
+    // 출력 샘플 가져오기
+    MFT_OUTPUT_DATA_BUFFER outputData = { 0 };
+    DWORD status = 0;
+    outputData.pSample = nullptr;
+
+    hr = pDecoder->ProcessOutput(0, 1, &outputData, &status);
+    if (SUCCEEDED(hr)) {
+        *ppOutputSample = outputData.pSample;
+        (*ppOutputSample)->AddRef();
+    }
+
+    if (outputData.pSample) {
+        outputData.pSample->Release();
+    }
+    return hr;
 }

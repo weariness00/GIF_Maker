@@ -13,7 +13,7 @@ void VideoCaptureController::BitmapsWorkerThread(VideoCaptureController* control
     UINT w, h;
     int i = 0;
 
-    auto c = GetEncoderClsid(L"image/png");
+    auto videoFormat = GetVideoFormat(controller->m_pSourceReader);
     while (i != frameCount)
     {
         DWORD dwWaitResult = WaitForSingleObject(controller->makeMutex, INFINITE);
@@ -23,7 +23,7 @@ void VideoCaptureController::BitmapsWorkerThread(VideoCaptureController* control
         if (dwWaitResult != WAIT_OBJECT_0) continue;
 
         auto frame = ReadFrameAtTime(controller->m_pSourceReader, frameTime, w, h);
-        auto bitmap = MakeBitmapToFrame(frame, w, h);
+        auto bitmap = MakeBitmapToFrame(frame, w, h, videoFormat);
         BitmapController* bitmapController = new BitmapController;
         bitmapController->SetBitmap(bitmap);
         bitmapController->wTransform.SetRect(i * controller->interval.left, 0, w, h);
