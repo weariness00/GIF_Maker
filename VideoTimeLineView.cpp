@@ -28,11 +28,14 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 	pixelPerSecond = 100;
 	wTransform.SetSize(rect.right, rect.bottom);
 	hVideoTimeLine = CreateChildWindow(
-		hwnd,
-		GetModuleHandle(nullptr),
+		WS_EX_TOPMOST,
 		L"VideoTimeLineView",
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_THICKFRAME | WS_TABSTOP,
 		WindowProc,
 		rect,
+		hwnd,
+		GetModuleHandle(nullptr),
 		this,
 		RGB(200, 200, 200));
 }

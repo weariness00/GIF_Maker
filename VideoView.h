@@ -6,6 +6,7 @@ class VideoView : public WindowObject
 {
 private:
 	static LRESULT CALLBACK VideoViewWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK ImageWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
 	VideoView(HWND hwnd);
@@ -24,10 +25,12 @@ public:
 
 	std::wstring* GetVideoPath() { return &videoFilePath; }
 protected:
-	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT ImageHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
 	HWND hVideo;
+	HWND hImage;
 
 private:
 	DoubleBufferingWindow* dbWindow;

@@ -101,11 +101,14 @@ struct TestS
 };
 // 독립적이지 않은 윈도우를 생성하는 함수
 inline HWND CreateChildWindow(
+    DWORD dwExStyle,
+    LPCWSTR className,                  // 자식 윈도우 클래스 이름
+    LPCWSTR windowName,
+    DWORD dwStyle,
+    WNDPROC childWndProc,               // 자식 윈도우 프로시저
+    RECT rect, // 자식 윈도우 위치 및 크기
     HWND hParent,                       // 부모 윈도우 핸들
     HINSTANCE hInstance,                // 인스턴스 핸들
-    LPCWSTR className,                  // 자식 윈도우 클래스 이름
-    WNDPROC childWndProc,               // 자식 윈도우 프로시저
-    RECT& rect, // 자식 윈도우 위치 및 크기
     LPVOID data = nullptr,
     COLORREF color = RGB( 0,0,255 )
 ) {
@@ -146,7 +149,7 @@ inline HWND CreateChildWindow(
     HWND hWndChild = CreateWindowExW(
         WS_EX_TOPMOST,
         ws.c_str(),  // 자식 윈도우 클래스 이름
-        NULL,                 // 자식 윈도우는 보통 타이틀 없음
+        windowName,                 // 자식 윈도우는 보통 타이틀 없음
         WS_CHILD | WS_VISIBLE | WS_THICKFRAME | WS_TABSTOP, // 자식 스타일
         x, y,              // 위치 (부모 윈도우의 클라이언트 좌표 기준)
         width, height,            // 크기 (너비와 높이)

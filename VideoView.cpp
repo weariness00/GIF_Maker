@@ -17,27 +17,71 @@ LRESULT VideoView::VideoViewWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 
     if (pThis) {
         // 멤버 함수로 메시지 처리
-        return pThis->HandleMessage(hwnd, uMsg, wParam, lParam);
+        return pThis->VideoHandleMessage(hwnd, uMsg, wParam, lParam);
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+LRESULT VideoView::ImageWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    VideoView* pThis = NULL;
+
+    if (uMsg == WM_NCCREATE) {
+        // WM_NCCREATE에서 lParam을 통해 this 포인터 설정
+        LPCREATESTRUCT pCreate = reinterpret_cast<LPCREATESTRUCT>(lParam);
+        pThis = static_cast<VideoView*>(pCreate->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+    else {
+        // 이후 메시지에서는 GWLP_USERDATA에서 this 포인터를 가져옴
+        pThis = reinterpret_cast<VideoView*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    }
+
+    if (pThis) {
+        // 멤버 함수로 메시지 처리
+        return pThis->ImageHandleMessage(hwnd, uMsg, wParam, lParam);
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+// --------------------------------------------------------------------------------
+// dynamic Members
 VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
 {
     RECT rect;
     GetClientRect(hwnd, &rect);
     wTransform.SetRect({ 0,0,rect.right - rect.left , 400 });
     auto wRect = wTransform.GetWorldRect();
+
+    // Video Window
     hVideo = CreateChildWindow(
-        hwnd,
-        GetModuleHandle(nullptr),
+        WS_EX_TOPMOST,
         L"VideoView",
+        NULL,
+        WS_CHILD | WS_VISIBLE | WS_THICKFRAME | WS_TABSTOP,
         VideoViewWindowProc,
         *wRect,
+        hwnd,
+        GetModuleHandle(nullptr),
         this);
     OnCreateWindow(hVideo);
 
+    // Video Overlay Layerd Image Window
+    hImage = CreateChildWindow(
+        WS_EX_LAYERED,
+        L"Video Overlay Image View",
+        NULL,
+        WS_CHILD | WS_TABSTOP | WS_VISIBLE,
+        ImageWindowProc,
+        RECT(0,0,wRect->right, wRect->bottom),
+        hVideo,
+        GetModuleHandle(nullptr),
+        this
+    );
+    SetLayeredWindowAttributes(hImage, 0, 255, LWA_ALPHA);
+    // ETC...
     videoPlayer->readyVideoRendererEvent.AddEvent(std::function<void()>([&]()
         {
             videoPlayer->Pause();
@@ -50,17 +94,11 @@ VideoView::~VideoView()
     SafeRelease(&videoPlayer);
 }
 
-LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT VideoView::VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
-    case WM_CREATE:{
-    		dbWindow = new DoubleBufferingWindow(hWnd);
-			auto dbMemHDC = dbWindow->GetMemHDC();
-			GDIPlusManager::Instance->CreateGraphics(dbMemHDC);
-    		break;
-		}
     case WM_LBUTTONDOWN:
-        SetFocus(hVideo); // 클릭한 자식 윈도우에 포커스를 준다.
+        SetFocus(hWnd); // 클릭한 자식 윈도우에 포커스를 준다.
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -97,11 +135,6 @@ LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         return TRUE;
     }
     case WM_PAINT:{
-        //dbWindow->OnPaint([&](const HDC hdc)
-        //{
-	       // OnPaint(hdc);
-        //    gifAreaImage.OnPaint(hdc);
-        //});
         break;
     }
     //case WM_SIZE:
@@ -113,6 +146,28 @@ LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_APP_PLAYER_EVENT:
         OnPlayerEvent(wParam);
         break;
+    default:
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
+
+LRESULT VideoView::ImageHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg) {
+    case WM_CREATE: {
+        dbWindow = new DoubleBufferingWindow(hWnd);
+        auto dbMemHDC = dbWindow->GetMemHDC();
+        GDIPlusManager::Instance->CreateGraphics(dbMemHDC);
+        break;
+    }
+    case WM_PAINT: {
+        dbWindow->OnPaint([&](const HDC hdc)
+        {
+            gifAreaImage.OnPaint(hdc);
+        });
+        break;
+    }
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
