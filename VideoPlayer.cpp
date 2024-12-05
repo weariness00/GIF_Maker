@@ -349,8 +349,6 @@ HRESULT VideoPlayer::Invoke(IMFAsyncResult* pResult)
         {
             goto done;
         }
-
-        readyVideoRenderer.Execute<void>();
     }
 
     // Check the application state. 
@@ -468,6 +466,7 @@ HRESULT VideoPlayer::OnTopologyStatus(IMFMediaEvent* pEvent)
             IID_PPV_ARGS(&m_pVideoDisplay));
 
         hr = StartPlayback();
+        readyVideoRendererEvent.Execute<void>();
     }
     return hr;
 }

@@ -87,7 +87,7 @@ protected:
     }
 
 public:
-    TDelegate readyVideoRenderer;
+    TDelegate readyVideoRendererEvent;
 
 protected:
     long                    m_nRefCount;        // Reference count.
