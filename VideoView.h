@@ -14,7 +14,7 @@ public:
 public:
 	void OnFileOpen(std::wstring& path);
 	LRESULT OnCreateWindow(HWND hwnd);
-	void OnPaint();
+	void OnPaint(HDC hdc);
 	void OnResize(RECT& rect) const;
 	void OnResize(int w, int h) { RECT rect{ 0,0, w, h }; OnResize(rect); }
 	void OnKeyPress(WPARAM key);
@@ -30,8 +30,10 @@ public:
 	HWND hVideo;
 
 private:
+	DoubleBufferingWindow* dbWindow;
 	BOOL repaintClient = TRUE;
 	VideoPlayer* videoPlayer;
+	ImageController gifAreaImage;
 
 	std::wstring videoFilePath;
 };

@@ -37,6 +37,11 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
         *wRect,
         this);
     OnCreateWindow(hVideo);
+
+    videoPlayer->readyVideoRendererEvent.AddEvent(std::function<void()>([&]()
+        {
+            videoPlayer->Pause();
+        }));
 }
 
 VideoView::~VideoView()
@@ -48,6 +53,12 @@ VideoView::~VideoView()
 LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
+    case WM_CREATE:{
+    		dbWindow = new DoubleBufferingWindow(hWnd);
+			auto dbMemHDC = dbWindow->GetMemHDC();
+			GDIPlusManager::Instance->CreateGraphics(dbMemHDC);
+    		break;
+		}
     case WM_LBUTTONDOWN:
         SetFocus(hVideo); // 클릭한 자식 윈도우에 포커스를 준다.
         break;
@@ -85,9 +96,14 @@ LRESULT VideoView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         OnResize(clientRect);
         return TRUE;
     }
-    //case WM_PAINT:
-    //    OnPaint();
-    //    break;
+    case WM_PAINT:{
+        //dbWindow->OnPaint([&](const HDC hdc)
+        //{
+	       // OnPaint(hdc);
+        //    gifAreaImage.OnPaint(hdc);
+        //});
+        break;
+    }
     //case WM_SIZE:
     //    OnResize(windowH, windowH);
     //    break;
@@ -125,11 +141,8 @@ LRESULT VideoView::OnCreateWindow(HWND hwnd)
     }
 }
 
-void VideoView::OnPaint()
+void VideoView::OnPaint(HDC hdc)
 {
-    PAINTSTRUCT ps;
-    HDC hdc = BeginPaint(hVideo, &ps);
-
     if (videoPlayer && videoPlayer->HasVideo())
     {
         // Video is playing. Ask the player to repaint.
@@ -142,7 +155,6 @@ void VideoView::OnPaint()
         GetClientRect(hVideo, &rc);
         FillRect(hdc, &rc, (HBRUSH)COLOR_WINDOW);
     }
-    EndPaint(hVideo, &ps);
 }
 
 void VideoView::OnResize(RECT& rect) const
