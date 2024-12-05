@@ -70,17 +70,17 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
 
     // Video Overlay Layerd Image Window
     hImage = CreateChildWindow(
-        WS_EX_LAYERED,
+        WS_EX_LAYERED | WS_EX_TOPMOST,
         L"Video Overlay Image View",
         NULL,
-        WS_CHILD | WS_TABSTOP | WS_VISIBLE,
+        WS_POPUP | WS_VISIBLE,
         ImageWindowProc,
         RECT(0,0,wRect->right, wRect->bottom),
         hVideo,
         GetModuleHandle(nullptr),
         this
     );
-    SetLayeredWindowAttributes(hImage, 0, 255, LWA_ALPHA);
+    SetLayeredWindowAttributes(hImage, 0, 255, LWA_COLORKEY);
     // ETC...
     videoPlayer->readyVideoRendererEvent.AddEvent(std::function<void()>([&]()
         {
