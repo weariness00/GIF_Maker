@@ -9,26 +9,28 @@
 
 using namespace Gdiplus;
 
-// rc 내에서 어떤 타입에 할당되어있는지
-enum ImageWindowType
-{
-	Empty,
-	Window,
-	PictureControl,
-};
-
 class ImageController : public WindowObject
 {
+private:
+	static Image* DefaultImage;
+
 public:
 	ImageController();
 	~ImageController();
 
+	void SetOutsideAreaColor(float r, float g, float b, float a);
+	void SetInsideAreaColor(float r, float g, float b, float a);
+
 	void CreateImage(std::wstring path);
 	void OnPaint(HDC hdc);
 
+public:
+	bool isDrawArea; // 특정 영역만 그릴 것인지
+	Gdiplus::Rect drawAreaRect;
+
 private:
 	Image* image;
-
-	ImageWindowType windowType;
+	ColorMatrix outsideColorMatrix;
+	ColorMatrix insideColorMatrix;
 };
 
