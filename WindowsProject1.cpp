@@ -204,8 +204,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_CREATE:
-	    {
+    case WM_CREATE:{
         RECT rect;
         GetClientRect(hWnd, &rect);
         int w = rect.right - rect.left;
@@ -214,8 +213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             hWnd,
             { 0,400, w, 400 });
         break;
-	    }
-       
+    }
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
