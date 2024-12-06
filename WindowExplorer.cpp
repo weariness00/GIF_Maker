@@ -33,7 +33,8 @@ void WindowExplorer::CloseExplorerWindows()
                     IWebBrowser2* pwb;
                     if (SUCCEEDED(pdisp->QueryInterface(IID_PPV_ARGS(&pwb))))
                     {
-                        pwb->Quit();
+                        
+                        //pwb->Quit(); // 열려있는 파일 닫는 기능
                         pwb->Release();
                     }
                     pdisp->Release();
