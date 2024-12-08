@@ -71,11 +71,6 @@ HRESULT CreatePlaybackTopology(
     HWND hVideoWnd,                   // Video window.
     IMFTopology** ppTopology);         // Receives a pointer to the topology.
 
-// Get Frame & Bitmap To IMFSourceReader
-BYTE* ReadFrame(IMFSourceReader* pReader, UINT32& width, UINT32& height);
-BYTE* ReadFrameAtTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds, UINT32& width, UINT32& height);
-Gdiplus::Bitmap* MakeBitmapToFrame(BYTE* frameByte, const UINT& width, const UINT& height, const GUID& videoFormat);
-
 //IMFSourceReader Associate Function
 HRESULT SeekToTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds);
 LONGLONG GetVideoCurrentTime(IMFSourceReader* pReader);
@@ -83,10 +78,3 @@ LONGLONG GetVideoTime(IMFSourceReader* pReader);
 GUID GetVideoFormat(IMFSourceReader* pMediaSource);
 double ConvertNanoSecondsToSeconds(LONGLONG time100ns);
 LONGLONG ConvertSecondsToNanoSeconds(double seconds);
-
-CLSID* GetEncoderClsid(const WCHAR* format);
-
-//Video Format Associate Function
-HRESULT InitializeDecoder(IMFTransform** ppDecoder, const GUID& inputFormat);
-HRESULT ConfigureDecoder(IMFTransform* pDecoder, const GUID& inputFormat, UINT32 width, UINT32 height);
-HRESULT ProcessSample(IMFTransform* pDecoder, IMFSample* pInputSample, IMFSample** ppOutputSample);
