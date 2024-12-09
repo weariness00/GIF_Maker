@@ -31,13 +31,20 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 		WS_EX_TOPMOST,
 		L"VideoTimeLineView",
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_THICKFRAME | WS_TABSTOP,
+		WS_CHILD | WS_VISIBLE | WS_BORDER | WS_THICKFRAME,
 		WindowProc,
 		rect,
 		hwnd,
 		GetModuleHandle(nullptr),
 		this,
 		RGB(200, 200, 200));
+
+	ProjectManager::Instance->videoOpenExploprer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
+		{
+			videoFrameReader->OpenVideoAnsyc(inputFile.c_str());
+			videoFrameReader->SetBitmapPositionInterval(100, 0);
+			videoFrameReader->SetBitmapSize(100, 100);
+		}));
 }
 
 VideoTimeLineView::~VideoTimeLineView()
@@ -109,22 +116,31 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			timeAssociateObject.SetChild(timeBarImages[i]);
 		}
 
+		videoFrameReader = new VideoFrameReader(hWnd);
+		videoFrameReader->wTransform.SetPosition(100, 50);
+		SetChild(videoFrameReader);
 		break;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	case WM_PAINT:
-		dbWindow->OnPaint([&](const HDC hdc)
+	{
+		const static auto paint = [&](const HDC hdc)
 			{
 				backgroundImage.OnPaint(hdc);
 				timeLineObjects->OnPaint(hdc);
+
+				videoFrameReader->OnPain(hdc);
 				for (auto& timeBarImage : timeBarImages)
 					timeBarImage->OnPaint(hdc);
-
-				if(videoCapture) videoCapture->OnPaint(hdc);
-			});
+			};
+		PAINTSTRUCT ps;
+		BeginPaint(hWnd, &ps);
+		dbWindow->OnPaint(paint);
+		EndPaint(hWnd, &ps);
 		break;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONUP:
@@ -133,6 +149,29 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			timeBarImages[i]->OnMouseEvent(uMsg, dbWindow->GetMemHDC(), timeBarImages[i], lParam);
 		}
 		break;
+	case WM_NCHITTEST: {
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+
+		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+		ScreenToClient(hWnd, &pt);
+
+		const int BORDER_SIZE = 2; // 테두리 크기
+
+		if (pt.x <= BORDER_SIZE) {
+			if (pt.y <= BORDER_SIZE) return HTTOPLEFT; // 왼쪽 위 모서리
+			if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMLEFT; // 왼쪽 아래 모서리
+			return HTLEFT; // 왼쪽 테두리
+		}
+		if (pt.x >= rect.right - BORDER_SIZE) {
+			if (pt.y <= BORDER_SIZE) return HTTOPRIGHT; // 오른쪽 위 모서리
+			if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMRIGHT; // 오른쪽 아래 모서리
+			return HTRIGHT; // 오른쪽 테두리
+		}
+		if (pt.y <= BORDER_SIZE) return HTTOP; // 상단 테두리
+		if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOM; // 하단 테두리
+		break;
+	}
 	case WM_MOUSEWHEEL:
 
 		break;

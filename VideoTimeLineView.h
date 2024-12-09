@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
 #include "WindowMouseEventInterface.h"
+#include "VideoFrameReader.h"
 
 class TimeLineObjects;
 class TimeBarImage;
@@ -23,7 +24,6 @@ protected:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
-	VideoCaptureController* videoCapture;
 	int pixelPerSecond; // N픽셀당 1초로 할 것인지
 
 private:
@@ -36,6 +36,7 @@ private:
 	WindowObject timeAssociateObject;
 	TimeLineObjects* timeLineObjects;
 	TimeBarImage* timeBarImages[2];
+	VideoFrameReader* videoFrameReader;
 };
 
 

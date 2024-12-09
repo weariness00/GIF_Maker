@@ -71,10 +71,24 @@ HRESULT CreatePlaybackTopology(
     HWND hVideoWnd,                   // Video window.
     IMFTopology** ppTopology);         // Receives a pointer to the topology.
 
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
+// Convert Format Data
+BYTE* NV12ToRGB32(const BYTE* pNV12, int width, int height);
+
 //IMFSourceReader Associate Function
 HRESULT SeekToTime(IMFSourceReader* pReader, LONGLONG timeInHundredNanoSeconds);
 LONGLONG GetVideoCurrentTime(IMFSourceReader* pReader);
 LONGLONG GetVideoTime(IMFSourceReader* pReader);
+HRESULT GetVideoResolution(IMFSourceReader* pReader, UINT32* pWidth, UINT32* pHeight);
 GUID GetVideoFormat(IMFSourceReader* pMediaSource);
 double ConvertNanoSecondsToSeconds(LONGLONG time100ns);
 LONGLONG ConvertSecondsToNanoSeconds(double seconds);
+
+DWORD GetStreamLength(IMFSourceReader* pReader);
+HRESULT FindVideoStreamIndex(IMFSourceReader* pReader, DWORD* pdwVideoStreamIndex);
+HRESULT ConfigureVideoDecoder(IMFSourceReader* pReader);
+HRESULT CreateSourceReaderAsync(
+    PCWSTR pszURL,
+    IMFSourceReaderCallback* pCallback,
+    IMFSourceReader** ppReader);
