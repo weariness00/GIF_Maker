@@ -17,11 +17,39 @@ WindowObject::WindowObject()
 
 WindowObject::~WindowObject()
 {
+	if (child) {
+		WindowObject* tempChild = child;
+		while (tempChild) {
+			tempChild->parent = nullptr;
+			WindowObject* nextChild = tempChild->nextSibling;
+			delete tempChild;  // 자식 객체 삭제
+			tempChild = nextChild;
+		}
+	}
+
+	if (parent)
+	{
+		if (parent->child == this)
+		{
+			parent->child = nextSibling;
+			if(nextSibling) nextSibling->prevSibling = nullptr;
+		}
+		else
+		{
+			nextSibling->prevSibling = prevSibling;
+			prevSibling->nextSibling = nextSibling;
+		}
+	}
+
+	child = nullptr;
+	prevSibling = nullptr;
+	nextSibling = nullptr;
+
+	objects.erase(find(objects.begin(), objects.end(), this));
 }
 
 bool WindowObject::SetParent(WindowObject* parentObj)
 {
-
 	return true;
 }
 
@@ -31,11 +59,12 @@ bool WindowObject::SetChild(WindowObject* childObj)
 	if(child != nullptr)
 	{
 		WindowObject* s = child;
-		while(s->sibling)
+		while(s->nextSibling)
 		{
-			s = s->sibling;
+			s = s->nextSibling;
 		}
-		s->sibling = childObj;
+		s->nextSibling = childObj;
+		childObj->prevSibling = s;
 		childObj->parent = this;
 	}
 	else
@@ -62,7 +91,7 @@ void WindowObject::UpdateRootRecursively(WindowObject* node, WindowObject* newRo
 
 	// 하위 자식과 형제 노드에 대해 재귀적으로 root 갱신
 	UpdateRootRecursively(node->child, newRoot);
-	UpdateRootRecursively(node->sibling, newRoot);
+	UpdateRootRecursively(node->nextSibling, newRoot);
 }
 
 void WindowObject::UpdateWindowTransform(const RECT* worldRect)
@@ -72,6 +101,6 @@ void WindowObject::UpdateWindowTransform(const RECT* worldRect)
 	else
 		wTransform.UpdateWorldTransform(nullptr);
 
-	if (sibling) sibling->UpdateWindowTransform(worldRect);
+	if (nextSibling) nextSibling->UpdateWindowTransform(worldRect);
 	if (child) child->UpdateWindowTransform(wTransform.GetWorldRect(false));
 }

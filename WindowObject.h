@@ -33,6 +33,7 @@ public:
 private:
 	WindowObject* root;
 	WindowObject* parent;
-	WindowObject* sibling;
+	WindowObject* prevSibling;
+	WindowObject* nextSibling;
 	WindowObject* child;
 };
