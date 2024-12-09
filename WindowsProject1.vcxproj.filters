@@ -90,14 +90,17 @@
     <ClInclude Include="BitmapController.h">
       <Filter>Framework\UI</Filter>
     </ClInclude>
-    <ClInclude Include="VideoCaptureController.h">
-      <Filter>Media Foundation\Default</Filter>
-    </ClInclude>
     <ClInclude Include="GDIPlusManager.h">
       <Filter>Framework\WinAPI</Filter>
     </ClInclude>
     <ClInclude Include="WindowComponent.h">
       <Filter>Framework\WinAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoFrameReader.h">
+      <Filter>Media Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -149,14 +152,17 @@
     <ClCompile Include="BitmapController.cpp">
       <Filter>Framework\UI</Filter>
     </ClCompile>
-    <ClCompile Include="VideoCaptureController.cpp">
-      <Filter>Media Foundation\Default</Filter>
-    </ClCompile>
     <ClCompile Include="GDIPlusManager.cpp">
       <Filter>Framework\WinAPI</Filter>
     </ClCompile>
     <ClCompile Include="WindowComponent.cpp">
       <Filter>Framework\WinAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoFrameReader.cpp">
+      <Filter>Media Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectManager.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

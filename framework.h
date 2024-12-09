@@ -35,15 +35,14 @@
 #include <list>
 #include <iomanip>
 
-#include "GDIPlusManager.h"
 #include "TDelegate.h"
 #include "WindowObject.h"
 #include "VideoPlayer.h"
-#include "VideoCaptureController.h"
 #include "ImageController.h"
 #include "BitmapController.h"
 #include "TextController.h"
 #include "DoubleBufferingWindow.h"
+#include "ProjectManager.h"
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -118,20 +117,21 @@ inline HWND CreateChildWindow(
     ws.append(L"_0");
     // 윈도우 클래스 등록
     // 자식 윈도우 클래스 등록
-    WNDCLASSW wcChild = {};
+    WNDCLASSEXW wcChild = {};
+    wcChild.cbSize = sizeof(WNDCLASSEX);
     wcChild.lpfnWndProc = childWndProc;
     wcChild.hInstance = hInstance;
     wcChild.lpszClassName = ws.c_str();
     wcChild.hbrBackground = CreateSolidBrush(color);
 
     int count = 1;
-    while(GetClassInfoW(hInstance, ws.c_str(), &wcChild)) {
+    while(GetClassInfoExW(hInstance, ws.c_str(), &wcChild)) {
         ws.assign(ws.substr(0, lastLineStart) + L"_" + std::to_wstring(count));
         wcChild.lpszClassName = ws.c_str();
         ++count;
     }
 
-    if (!RegisterClassW(&wcChild))
+    if (!RegisterClassExW(&wcChild))
     {
         DWORD error = GetLastError();
         std::wstring errorMessage = L"Failed to register window class. Error code: " + std::to_wstring(error);
@@ -147,10 +147,10 @@ inline HWND CreateChildWindow(
 
     // 자식 윈도우 생성
     HWND hWndChild = CreateWindowExW(
-        WS_EX_TOPMOST,
+        dwExStyle,
         ws.c_str(),  // 자식 윈도우 클래스 이름
         windowName,                 // 자식 윈도우는 보통 타이틀 없음
-        WS_CHILD | WS_VISIBLE | WS_THICKFRAME | WS_TABSTOP, // 자식 스타일
+        dwStyle, // 자식 스타일
         x, y,              // 위치 (부모 윈도우의 클라이언트 좌표 기준)
         width, height,            // 크기 (너비와 높이)
         hParent,                // 부모 윈도우 핸들
@@ -164,6 +164,5 @@ inline HWND CreateChildWindow(
         std::wstring errorMessage = L"Failed to create child window. Error code: " + std::to_wstring(error);
         MessageBoxW(NULL, errorMessage.c_str(), L"Error", MB_ICONERROR);
     }
-
     return hWndChild;
 }

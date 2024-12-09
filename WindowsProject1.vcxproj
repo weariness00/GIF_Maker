@@ -138,10 +138,11 @@
     <ClInclude Include="MainView.h" />
     <ClInclude Include="MediaDebuging.h" />
     <ClInclude Include="MediaFunction.h" />
+    <ClInclude Include="ProjectManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
     <ClInclude Include="TextController.h" />
-    <ClInclude Include="VideoCaptureController.h" />
+    <ClInclude Include="VideoFrameReader.h" />
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="VideoTimeLineView.h" />
     <ClInclude Include="VideoView.h" />
@@ -160,9 +161,10 @@
     <ClCompile Include="ImageController.cpp" />
     <ClCompile Include="MediaDebuging.cpp" />
     <ClCompile Include="MediaFunction.cpp" />
+    <ClCompile Include="ProjectManager.cpp" />
     <ClCompile Include="TDelegate.cpp" />
     <ClCompile Include="TextController.cpp" />
-    <ClCompile Include="VideoCaptureController.cpp" />
+    <ClCompile Include="VideoFrameReader.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="VideoTimeLineView.cpp" />
     <ClCompile Include="VideoView.cpp" />

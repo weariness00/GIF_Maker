@@ -60,11 +60,11 @@ int GIF::Make(std::wstring& inputFile, std::wstring& outputFile)
     std::wstring curPalettePath = outputFile;
     std::wstring curOutputPath = outputFile;
 
-    WrapingQuotes(curInputPath);
+    curInputPath = WrapingQuotes(curInputPath);
     curPalettePath.append(L".png");
     curOutputPath.append(L".gif");
-    WrapingQuotes(curPalettePath);
-    WrapingQuotes(curOutputPath);
+    curPalettePath = WrapingQuotes(curPalettePath);
+    curOutputPath = WrapingQuotes(curOutputPath);
 
     std::wstring startTimeStr = TimeFormat(startTime);
     std::wstring endTimeStr = TimeFormat(endTime);

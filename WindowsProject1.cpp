@@ -13,13 +13,13 @@
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+ProjectManager pm;
 
 /* GDI 관련 데이터 */
+
 ULONG_PTR gdiplusToken;
 GdiplusStartupInput gdiplusStartupInput;
-GDIPlusManager gdiPlusManager;
 
-WindowExplorer windowExplorer;
 GIF testGIF;
 VideoView* videoView;
 VideoTimeLineView* videoTimeLineView;
@@ -39,20 +39,6 @@ void Init()
     auto dirPath = std::filesystem::current_path() / PreviewDirPath;
     std::filesystem::create_directory(dirPath);
     PreviewDirPath = dirPath.wstring();
-
-    windowExplorer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
-		{
-            videoView->OnFileOpen(inputFile);
-            //if (videoTimeLineView->videoCapture)
-            //    delete videoTimeLineView->videoCapture;
-            //RECT r{ videoTimeLineView->pixelPerSecond, 0, 300, 100 };
-            //VideoCaptureController* pVcc = new VideoCaptureController();
-            //pVcc->OpenURL(inputFile);
-            //pVcc->SetBitmapsRectToInterval(r);
-            //pVcc->MakeVideoCaptures(1);
-            //videoTimeLineView->SetChild(pVcc);
-            //videoTimeLineView->videoCapture = pVcc;
-        }));
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
         {
@@ -166,18 +152,33 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(
-       szWindowClass, 
-       szTitle,
-       WS_OVERLAPPEDWINDOW,
-       CW_USEDEFAULT,
-       0, 
-       CW_USEDEFAULT, 
-       0, 
-       nullptr, 
-       nullptr, 
-       hInstance, 
-       nullptr);
+   HWND hWnd = CreateWindowExW(
+       0,                             // 확장 스타일 (기본적으로 0으로 설정)
+       szWindowClass,                 // 윈도우 클래스 이름
+       szTitle,                       // 윈도우 타이틀
+       WS_OVERLAPPEDWINDOW,           // 윈도우 스타일
+       CW_USEDEFAULT,                 // x 좌표
+       0,                             // y 좌표
+       CW_USEDEFAULT,                 // 너비
+       0,                             // 높이
+       nullptr,                       // 부모 윈도우 핸들
+       nullptr,                       // 메뉴 핸들
+       hInstance,                     // 인스턴스 핸들
+       nullptr                        // 추가 데이터
+   );
+
+   //HWND hWnd = CreateWindowW(
+   //    szWindowClass, 
+   //    szTitle,
+   //    WS_OVERLAPPEDWINDOW,
+   //    CW_USEDEFAULT,
+   //    0, 
+   //    CW_USEDEFAULT, 
+   //    0, 
+   //    nullptr, 
+   //    nullptr, 
+   //    hInstance, 
+   //    nullptr);
 
    if (!hWnd)
    {
@@ -214,6 +215,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             { 0,400, w, 400 });
         break;
     }
+    //case WM_LBUTTONDOWN:
+    //    break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -227,7 +230,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             }
             case WindowFileLoad:
-                windowExplorer.FileOpenDialog(hWnd);
+                ProjectManager::Instance->videoOpenExploprer.FileOpenDialog(hWnd);
                 break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -240,9 +243,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-    case WM_CHAR:
-        videoView->OnKeyPress(wParam);
-        break;
+    //case WM_CHAR:
+    //    videoView->OnKeyPress(wParam);
+    //    break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;

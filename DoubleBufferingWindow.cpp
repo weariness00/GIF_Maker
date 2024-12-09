@@ -37,7 +37,4 @@ void DoubleBufferingWindow::OnPaint(const std::function<void(HDC)>& paintFunc) c
 
 	// 복구: 이전 비트맵을 다시 선택
     SelectObject(m_hdcMem, oldBitmap);
-
-    // 기존 비트맵 해제
-    DeleteObject(m_hBitmap);
 }

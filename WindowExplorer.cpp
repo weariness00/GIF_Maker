@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "WindowExplorer.h"
 
 WindowExplorer::WindowExplorer()
