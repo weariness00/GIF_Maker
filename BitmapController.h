@@ -18,9 +18,13 @@ public:
 	BitmapController();
 	~BitmapController();
 
+	void MakeBitmap(BYTE* pData, UINT width, UINT height);
 	void SetBitmap(Bitmap* _bitmap) { bitmap = _bitmap; }
 
+	Bitmap* GetBitMap() { return bitmap; }
+
 	void OnPaint(HDC hdc);
+	void OnPaint(HDC hdc, int extendWidth, int extendHeight);
 
 private:
 	Bitmap* bitmap;
