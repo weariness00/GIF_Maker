@@ -44,6 +44,9 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 			videoFrameReader->OpenVideoAnsyc(inputFile.c_str());
 			videoFrameReader->SetBitmapPositionInterval(100, 0);
 			videoFrameReader->SetBitmapSize(100, 100);
+
+			timeBarImages[0]->wTransform.SetPositionX(0);
+			timeBarImages[1]->wTransform.SetPositionX(videoFrameReader->GetVideoDuration() * pixelPerSecond);
 		}));
 }
 
@@ -87,11 +90,11 @@ std::pair<float, float> VideoTimeLineView::GetTime() const
 	return { startTime , endTime };
 }
 
-LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case WM_CREATE: {
-		dbWindow = new DoubleBufferingWindow(hWnd);
+		dbWindow = new DoubleBufferingWindow(hwnd);
 		auto dbMemHDC = dbWindow->GetMemHDC();
 		GDIPlusManager::Instance->CreateGraphics(dbMemHDC);
 
@@ -116,7 +119,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			timeAssociateObject.SetChild(timeBarImages[i]);
 		}
 
-		videoFrameReader = new VideoFrameReader(hWnd);
+		videoFrameReader = new VideoFrameReader(hwnd);
 		videoFrameReader->wTransform.SetPosition(100, 50);
 		SetChild(videoFrameReader);
 		break;
@@ -136,25 +139,28 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 					timeBarImage->OnPaint(hdc);
 			};
 		PAINTSTRUCT ps;
-		BeginPaint(hWnd, &ps);
+		BeginPaint(hwnd, &ps);
 		dbWindow->OnPaint(paint);
-		EndPaint(hWnd, &ps);
+		EndPaint(hwnd, &ps);
 		break;
 	}
 	case WM_LBUTTONDOWN:
+		SetFocus(hwnd); // 클릭한 자식 윈도우에 포커스를 준다.
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONUP:
 		for (int i = 0; i < 2; i++)
 		{
 			timeBarImages[i]->OnMouseEvent(uMsg, dbWindow->GetMemHDC(), timeBarImages[i], lParam);
 		}
+		InvalidateRect(hwnd, NULL, FALSE);  // 무효화 없이 갱신
+		UpdateWindow(hwnd);
 		break;
 	case WM_NCHITTEST: {
 		RECT rect;
-		GetClientRect(hWnd, &rect);
+		GetClientRect(hwnd, &rect);
 
 		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-		ScreenToClient(hWnd, &pt);
+		ScreenToClient(hwnd, &pt);
 
 		const int BORDER_SIZE = 2; // 테두리 크기
 
@@ -170,7 +176,9 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 		}
 		if (pt.y <= BORDER_SIZE) return HTTOP; // 상단 테두리
 		if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOM; // 하단 테두리
-		break;
+		
+		LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return hit;
 	}
 	case WM_MOUSEWHEEL:
 
@@ -180,7 +188,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 	case WM_CHAR:
 		break;
 	default:
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	return 0;
 }

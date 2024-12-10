@@ -53,7 +53,7 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
 
     videoPlayer->readyVideoRendererEvent.AddEvent(std::function<void()>([&]()
         {
-            //videoPlayer->Pause();
+            videoPlayer->Pause();
         }));
 
     gifAreaImage.wTransform.SetRect(0, 0, wRect->right, wRect->bottom);
@@ -65,27 +65,27 @@ VideoView::~VideoView()
     SafeRelease(&videoPlayer);
 }
 
-LRESULT VideoView::VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT VideoView::VideoHandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
     case WM_CREATE:
     {
-        dbWindow = new DoubleBufferingWindow(hWnd);
+        dbWindow = new DoubleBufferingWindow(hwnd);
         GDIPlusManager::Instance->CreateGraphics(dbWindow->GetMemHDC());
         break;
     }
-    //case WM_LBUTTONDOWN:
-    //    SetFocus(hWnd); // 클릭한 자식 윈도우에 포커스를 준다.
-    //    break;
+    case WM_LBUTTONDOWN:
+        SetFocus(hwnd); // 클릭한 자식 윈도우에 포커스를 준다.
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
     case WM_NCHITTEST: {
         RECT rect;
-        GetClientRect(hWnd, &rect);
+        GetClientRect(hwnd, &rect);
 
         POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        ScreenToClient(hWnd, &pt);
+        ScreenToClient(hwnd, &pt);
 
         const int BORDER_SIZE = 2; // 테두리 크기
 
@@ -101,12 +101,14 @@ LRESULT VideoView::VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         }
         if (pt.y <= BORDER_SIZE) return HTTOP; // 상단 테두리
         if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOM; // 하단 테두리
-        break;
+        
+        LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
+        return hit;
     }
     case WM_SIZING:{
         // 클라이언트 영역의 크기 얻기
         RECT clientRect;
-        GetClientRect(hWnd, &clientRect);  // 클라이언트 영역의 크기
+        GetClientRect(hwnd, &clientRect);  // 클라이언트 영역의 크기
 
         OnResize(clientRect);
 
@@ -122,7 +124,7 @@ LRESULT VideoView::VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         OnPlayerEvent(wParam);
         break;
     default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     return 0;
 }
