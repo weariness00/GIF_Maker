@@ -11,9 +11,11 @@ public:
 	void Release();
 	void OpenVideoAnsyc(PCWSTR url);
 
-	void SetHWND(HWND _hwnd) { hwnd = _hwnd; }
 	void OnPain(HDC hdc);
 
+	double GetVideoDuration();
+
+	void SetHWND(HWND _hwnd) { hwnd = _hwnd; }
 	void SetBitmapSize(int w, int h);
 	void SetBitmapPositionInterval(int x, int y);
 

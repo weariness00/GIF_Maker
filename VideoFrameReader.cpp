@@ -54,7 +54,7 @@ void VideoFrameReader::OpenVideoAnsyc(PCWSTR url)
 		return;
 	}
 	
-	int videoTime = (int)ConvertNanoSecondsToSeconds(GetVideoTime(pReader));
+	int videoTime = std::ceil(ConvertNanoSecondsToSeconds(GetVideoTime(pReader)));
 	
 	std::lock_guard<std::mutex> lock(mtx);
 	bitmaps.clear();
@@ -66,11 +66,26 @@ void VideoFrameReader::OpenVideoAnsyc(PCWSTR url)
 
 void VideoFrameReader::OnPain(HDC hdc)
 {
+	if (bitmaps.empty()) return;
+
 	int len = GetBitmapLentgh();
+	int c = GetVideoDuration();
 	for (int i = 0; i < len; i++)
 	{
-		bitmaps[i].get()->OnPaint(hdc);
+		if (i == c)
+		{
+			int w = GetVideoDuration() * 100;
+			w %= size.x;
+			bitmaps[i].get()->OnPaint(hdc, w, size.y);
+		}
+		else
+			bitmaps[i].get()->OnPaint(hdc);
 	}
+}
+
+double VideoFrameReader::GetVideoDuration()
+{
+	return ConvertNanoSecondsToSeconds(GetVideoTime(pReader));
 }
 
 void VideoFrameReader::SetBitmapSize(int w, int h)
