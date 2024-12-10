@@ -60,5 +60,28 @@ void BitmapController::OnPaint(HDC hdc, int extendWidth, int extendHeight)
         int w = rect->right;
         int h = rect->bottom;
 
+        int bitmapW = bitmap->GetWidth();
+        int bitmapH = bitmap->GetHeight();
+
+        int horizontalReapeatCount = std::ceil((double)extendWidth / w);
+        int verticalReapeatCount = std::ceil((double)extendHeight / h);
+
+        for (int i = 0; i < verticalReapeatCount; i++)
+        {
+            for (int j = 0; j < horizontalReapeatCount; j++)
+            {
+                int desW = j == horizontalReapeatCount - 1? extendWidth % w : w;
+                int desH = i == verticalReapeatCount - 1 ? extendHeight % h : h;
+                desW = (desW == 0) ? w : desW;
+                desH = (desH == 0) ? h : desH;
+                int srcW = j == horizontalReapeatCount - 1 ? bitmapW * desW / w : bitmapW;
+                int srcH = i == verticalReapeatCount - 1 ? bitmapH * desH / h : bitmapH;
+
+                Rect desRect(x,y,desW,desH);
+                desRect.X *= (j + 1);
+                desRect.Y *= (i + 1);
+                graphic->DrawImage(bitmap, desRect, 0, 0, srcW, srcH, UnitPixel);
+            }
+        }
     }
 }

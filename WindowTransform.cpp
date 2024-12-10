@@ -50,6 +50,11 @@ void WindowTransform::SetPosition(const POINT& _position)
 	localRect.top = _position.y;
 }
 
+void WindowTransform::SetPositionX(const LONG x)
+{
+	SetPosition(x, position.y);
+}
+
 void WindowTransform::SetSize(const POINT& _size)
 {
 	size = _size;

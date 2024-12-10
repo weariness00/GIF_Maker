@@ -20,6 +20,7 @@ public:
 
 	void SetPosition(const POINT& _position);
 	void SetPosition(const LONG x, const LONG y) { SetPosition({ x,y }); }
+	void SetPositionX(const LONG x);
 	void SetSize(const POINT& _size);
 	void SetSize(const LONG x, const LONG y) { SetSize({ x, y }); }
 
