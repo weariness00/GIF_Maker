@@ -17,6 +17,8 @@ void WindowMouseEventInterface::OnMouseEvent(UINT massage, HDC hdc, WindowObject
     MouseEvent mouseEvent;
     mouseEvent.x = LOWORD(lParam);
     mouseEvent.y = HIWORD(lParam);
+    mouseEvent.moveX = mouseEvent.x - prevEvent.x;
+    mouseEvent.moveY = mouseEvent.y - prevEvent.y;
 
     bool isOnMouse;
     switch (massage)
@@ -47,6 +49,8 @@ void WindowMouseEventInterface::OnMouseEvent(UINT massage, HDC hdc, WindowObject
         isDragging = false;
         break;
     }
+
+    prevEvent = mouseEvent;
 }
 
 void WindowMouseEventInterface::MouseDownEvent(const MouseEvent& mouseEvent)

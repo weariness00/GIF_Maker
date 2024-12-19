@@ -8,6 +8,7 @@ class WindowObject;
 struct MouseEvent
 {
 	LONG x, y;
+	LONG moveX, moveY;
 };
 
 class WindowMouseEventInterface
@@ -30,5 +31,6 @@ private:
 	bool CheckOnMouse(WindowObject* winObj, const MouseEvent& mouseEvent);
 
 private:
+	MouseEvent prevEvent;
 	bool isDragging;
 };
