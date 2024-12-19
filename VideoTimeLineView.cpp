@@ -47,6 +47,8 @@ VideoTimeLineView::VideoTimeLineView(HWND hwnd, RECT rect)
 
 			timeBarImages[0]->wTransform.SetPositionX(0);
 			timeBarImages[1]->wTransform.SetPositionX(videoFrameReader->GetVideoDuration() * pixelPerSecond);
+			timeBarImages[0]->SetLimitX(videoFrameReader->GetVideoDuration() * pixelPerSecond);
+			timeBarImages[1]->SetLimitX(videoFrameReader->GetVideoDuration() * pixelPerSecond);
 		}));
 }
 
@@ -98,30 +100,31 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 		auto dbMemHDC = dbWindow->GetMemHDC();
 		GDIPlusManager::Instance->CreateGraphics(dbMemHDC);
 
-		backgroundImage.wTransform.SetRect(0, 0, wTransform.GetSize());
-		backgroundImage.CreateImage(backgroundImagePath);
-		SetChild(&backgroundImage);
+		timeObjectAssociate = new TimeObjectAssociate;
+		timeObjectAssociate->wTransform.SetRect(100, 0, wTransform.GetSize());
+		SetChild(timeObjectAssociate);
 
 		// Time Image Associate Objects
-		timeAssociateObject.wTransform.SetPosition(100, 0);
-		SetChild(&timeAssociateObject);
+		//timeAssociateObject.wTransform.SetPosition(100, 0);
+		//SetChild(&timeAssociateObject);
 
 		// Time Line
-		timeLineObjects = new TimeLineObjects(dbMemHDC, 30);
+		timeLineObjects = new TimeLineObjects(30);
 		timeLineObjects->SetPixelPerSeconds(pixelPerSecond);
-		timeAssociateObject.SetChild(timeLineObjects);
+		timeObjectAssociate->mouseEventParentObject->SetChild(timeLineObjects);
 
 		// Time Start & End Line
 		for (int i = 0; i < 2; i++)
 		{
-			timeBarImages[i] = new TimeBarImage(dbMemHDC);
+			timeBarImages[i] = new TimeBarImage();
 			timeBarImages[i]->wTransform.SetPosition(i * pixelPerSecond, 0);
-			timeAssociateObject.SetChild(timeBarImages[i]);
+			timeObjectAssociate->mouseEventParentObject->SetChild(timeBarImages[i]);
 		}
 
 		videoFrameReader = new VideoFrameReader(hwnd);
 		videoFrameReader->wTransform.SetPosition(100, 50);
-		SetChild(videoFrameReader);
+		timeObjectAssociate->mouseEventParentObject->SetChild(videoFrameReader);
+
 		break;
 	}
 	case WM_DESTROY:
@@ -131,7 +134,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 	{
 		const static auto paint = [&](const HDC hdc)
 			{
-				backgroundImage.OnPaint(hdc);
+				timeObjectAssociate->OnPaint(hdc);
 				timeLineObjects->OnPaint(hdc);
 
 				videoFrameReader->OnPain(hdc);
@@ -152,6 +155,9 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 		{
 			timeBarImages[i]->OnMouseEvent(uMsg, dbWindow->GetMemHDC(), timeBarImages[i], lParam);
 		}
+
+		timeObjectAssociate->OnMouseEvent(uMsg, dbWindow->GetMemHDC(), timeObjectAssociate, lParam);
+
 		InvalidateRect(hwnd, NULL, FALSE);  // 무효화 없이 갱신
 		UpdateWindow(hwnd);
 		break;
@@ -194,6 +200,38 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 }
 
 //---------------------------------------------------------------------
+// Time Background
+// Mouse Event 
+TimeObjectAssociate::TimeObjectAssociate()
+{
+	mouseEventParentObject = new WindowObject();
+
+	backgroundImage.wTransform.SetSize(10000, 10000);
+	backgroundImage.CreateImage(backgroundImagePath);
+
+	SetChild(mouseEventParentObject);
+}
+
+TimeObjectAssociate::~TimeObjectAssociate()
+{
+}
+
+void TimeObjectAssociate::MousePressEvent(const MouseEvent& mouseEvent)
+{
+	WindowMouseEventInterface::MousePressEvent(mouseEvent);
+	POINT localPos = mouseEventParentObject->wTransform.GetLocalPosition();
+	auto x = mouseEvent.moveX > 0 && localPos.x >= 100 ? 100 : localPos.x + mouseEvent.moveX;
+
+	mouseEventParentObject->wTransform.SetPosition(x, 0);
+}
+
+void TimeObjectAssociate::OnPaint(HDC hdc)
+{
+	backgroundImage.OnPaint(hdc);
+}
+
+
+//---------------------------------------------------------------------
 // Time Line Image
 // Time Line Text
 std::wstring TimeLineObjects::TimeFormat(const float seconds)
@@ -213,7 +251,7 @@ std::wstring TimeLineObjects::TimeFormat(const float seconds)
 	return oss.str();
 }
 
-TimeLineObjects::TimeLineObjects(HDC hdc, int objectLength)
+TimeLineObjects::TimeLineObjects(int objectLength)
 {
 	name = "Time Line Objects Parent";
 
@@ -272,9 +310,11 @@ void TimeLineObjects::SetPixelPerSeconds(const int pixelPerSeconds)
 
 //---------------------------------------------------------------------
 // 
-TimeBarImage::TimeBarImage(HDC hdc)
+TimeBarImage::TimeBarImage()
 {
 	name = "Time Bar Images Parent";
+
+	limitX = 100;
 
 	LONG defaultSize = 12;
 
@@ -306,5 +346,8 @@ void TimeBarImage::MousePressEvent(const MouseEvent& mouseEvent)
 	WindowMouseEventInterface::MousePressEvent(mouseEvent);
 	POINT worldPos = wTransform.GetWorldPosition();
 	POINT localPos = wTransform.GetLocalPosition();
-	wTransform.SetPosition(mouseEvent.x - (worldPos.x - localPos.x), 0);
+	auto x = mouseEvent.x - (worldPos.x - localPos.x);
+	x = limitX < x ? limitX : x;
+	x = x < 0 ? 0 : x;
+	wTransform.SetPosition(x, 0);
 }
