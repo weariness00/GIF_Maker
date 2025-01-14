@@ -669,3 +669,67 @@ done:
     SafeRelease(&pAttributes);
     return hr;
 }
+
+HRESULT GetVideoResolution(IMFMediaSource* pSource, UINT32& width, UINT32& height)
+{
+    if (!pSource) return E_POINTER;
+
+    IMFPresentationDescriptor* pPD = nullptr;
+    IMFStreamDescriptor* pSD = nullptr;
+    IMFMediaTypeHandler* pHandler = nullptr;
+    IMFMediaType* pMediaType = nullptr;
+
+    HRESULT hr = pSource->CreatePresentationDescriptor(&pPD);
+    if (FAILED(hr)) return hr;
+
+    BOOL fSelected = FALSE;
+    DWORD cStreams = 0;
+
+    // Get the number of streams
+    hr = pPD->GetStreamDescriptorCount(&cStreams);
+    if (FAILED(hr)) goto done;
+
+    for (DWORD i = 0; i < cStreams; ++i)
+    {
+        // Get the stream descriptor
+        hr = pPD->GetStreamDescriptorByIndex(i, &fSelected, &pSD);
+        if (FAILED(hr)) goto done;
+
+        // Check if this is a video stream
+        hr = pSD->GetMediaTypeHandler(&pHandler);
+        if (FAILED(hr)) goto done;
+
+        GUID majorType;
+        hr = pHandler->GetMajorType(&majorType);
+        if (FAILED(hr)) goto done;
+
+        if (majorType == MFMediaType_Video)
+        {
+            // Get the current media type
+            hr = pHandler->GetCurrentMediaType(&pMediaType);
+            if (FAILED(hr)) goto done;
+
+            // Get the frame size
+            UINT64 frameSize = 0;
+            hr = pMediaType->GetUINT64(MF_MT_FRAME_SIZE, &frameSize);
+            if (FAILED(hr)) goto done;
+
+            // Extract width and height
+            width = static_cast<UINT32>(frameSize & 0xFFFFFFFF);       // Low 32 bits
+            height = static_cast<UINT32>((frameSize >> 32) & 0xFFFFFFFF); // High 32 bits
+            break; // Found the video stream
+        }
+
+        // Release resources for this stream
+        SafeRelease(&pSD);
+        SafeRelease(&pHandler);
+    }
+
+done:
+    SafeRelease(&pPD);
+    SafeRelease(&pSD);
+    SafeRelease(&pHandler);
+    SafeRelease(&pMediaType);
+
+    return hr;
+}

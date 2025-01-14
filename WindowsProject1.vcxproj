@@ -106,6 +106,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\MyGitHub\GIF_Maker\FFmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -129,11 +130,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Binder.h" />
     <ClInclude Include="BitmapController.h" />
     <ClInclude Include="DoubleBufferingWindow.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIPlusManager.h" />
     <ClInclude Include="GIF.h" />
+    <ClInclude Include="GIFMakeProgressDialog.h" />
     <ClInclude Include="ImageController.h" />
     <ClInclude Include="MainView.h" />
     <ClInclude Include="MediaDebuging.h" />
@@ -141,6 +144,7 @@
     <ClInclude Include="ProjectManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TDelegate.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="TextController.h" />
     <ClInclude Include="VideoFrameReader.h" />
     <ClInclude Include="VideoPlayer.h" />
@@ -150,6 +154,7 @@
     <ClInclude Include="WindowExplorer.h" />
     <ClInclude Include="WindowMouseEventInterface.h" />
     <ClInclude Include="WindowObject.h" />
+    <ClInclude Include="WindowProcedure.h" />
     <ClInclude Include="WindowsProject1.h" />
     <ClInclude Include="WindowTransform.h" />
   </ItemGroup>
@@ -158,11 +163,13 @@
     <ClCompile Include="DoubleBufferingWindow.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="GIF.cpp" />
+    <ClCompile Include="GIFMakeProgressDialog.cpp" />
     <ClCompile Include="ImageController.cpp" />
     <ClCompile Include="MediaDebuging.cpp" />
     <ClCompile Include="MediaFunction.cpp" />
     <ClCompile Include="ProjectManager.cpp" />
     <ClCompile Include="TDelegate.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="TextController.cpp" />
     <ClCompile Include="VideoFrameReader.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
@@ -172,6 +179,7 @@
     <ClCompile Include="WindowExplorer.cpp" />
     <ClCompile Include="WindowMouseEventInterface.cpp" />
     <ClCompile Include="WindowObject.cpp" />
+    <ClCompile Include="WindowProcedure.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
     <ClCompile Include="WindowTransform.cpp" />
   </ItemGroup>

@@ -60,6 +60,9 @@ public:
 
     BOOL          HasVideo() const { return (m_pVideoDisplay != NULL); }
 
+
+    std::pair<SIZE, SIZE> GetNativeVideoSize();
+    RECT GetRenderVideoRect();
     double GetVideoDuration();
 
 protected:
@@ -88,6 +91,8 @@ protected:
 
 public:
     TDelegate readyVideoRendererEvent;
+    UINT wieth;
+    UINT height;
 
 protected:
     long                    m_nRefCount;        // Reference count.

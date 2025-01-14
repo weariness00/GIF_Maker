@@ -20,6 +20,7 @@ public:
 
 	void SetOutsideAreaColor(float r, float g, float b, float a);
 	void SetInsideAreaColor(float r, float g, float b, float a);
+	void SetColor(float r, float g, float b, float a);
 
 	void CreateImage(std::wstring path);
 	void OnPaint(HDC hdc);
@@ -32,5 +33,6 @@ private:
 	Image* image;
 	ColorMatrix outsideColorMatrix;
 	ColorMatrix insideColorMatrix;
+	ColorMatrix color;
 };
 

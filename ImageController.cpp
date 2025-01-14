@@ -8,8 +8,9 @@ ImageController::ImageController()
     wTransform.SetRect({ 0,0,100,100 });
     isDrawArea = false;
 
+    SetColor(0,0,0,1);
     SetOutsideAreaColor(0, 0, 0, 1);
-    SetInsideAreaColor(1, 1, 1, 1);
+    SetInsideAreaColor(0, 0, 0, 1);
 }
 
 ImageController::~ImageController()
@@ -19,24 +20,26 @@ ImageController::~ImageController()
 
 void ImageController::SetOutsideAreaColor(float r, float g, float b, float a)
 {
-    outsideColorMatrix = {
-    r   ,       0.0f, 0.0f, 0.0f, 0.0f, // Red
-    0.0f, g   , 0.0f, 0.0f, 0.0f, // Green
-    0.0f, 0.0f, b   , 0.0f, 0.0f, // Blue
-    0.0f, 0.0f, 0.0f, a   , 0.0f, // Alpha (투명도)
-    0.0f, 0.0f, 0.0f, 0.0f, 1.0f  // W
-	};
+    outsideColorMatrix.m[0][0] = r;
+    outsideColorMatrix.m[1][1] = g;
+    outsideColorMatrix.m[2][2] = b;
+    outsideColorMatrix.m[3][3] = a;
 }
-
+    
 void ImageController::SetInsideAreaColor(float r, float g, float b, float a)
 {
-    insideColorMatrix = {
-r   ,       0.0f, 0.0f, 0.0f, 0.0f, // Red
-0.0f, g   , 0.0f, 0.0f, 0.0f, // Green
-0.0f, 0.0f, b   , 0.0f, 0.0f, // Blue
-0.0f, 0.0f, 0.0f, a   , 0.0f, // Alpha (투명도)
-0.0f, 0.0f, 0.0f, 0.0f, 1.0f  // W
-    };
+    insideColorMatrix.m[0][0] = r;
+    insideColorMatrix.m[1][1] = g;
+    insideColorMatrix.m[2][2] = b;
+    insideColorMatrix.m[3][3] = a;
+}
+
+void ImageController::SetColor(float r, float g, float b, float a)
+{
+    color.m[0][0] = r;
+    color.m[1][1] = g;
+    color.m[2][2] = b;
+    color.m[3][3] = a;
 }
 
 void ImageController::CreateImage(std::wstring path)

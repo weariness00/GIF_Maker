@@ -54,6 +54,17 @@ void GIF::SetTime(std::pair<float, float> times)
     endTime = times.second;
 }
 
+void GIF::SetFrameRate(float frame)
+{
+    frameRate = frame;
+}
+
+void GIF::SetScale(float w, float h)
+{
+    width = w;
+    height = h;
+}
+
 int GIF::Make(std::wstring& inputFile, std::wstring& outputFile)
 {
     std::wstring curInputPath = inputFile;
@@ -69,24 +80,51 @@ int GIF::Make(std::wstring& inputFile, std::wstring& outputFile)
     std::wstring startTimeStr = TimeFormat(startTime);
     std::wstring endTimeStr = TimeFormat(endTime);
 
+    auto frameStr = [&]() {return L"\"fps =" + std::to_wstring(frameRate); };
+    auto ScaleStr = [&]() {return std::format(L"scale={}:{}", width, height); };
+
     std::wstring paletteCommand =
         currentDirPath + L"\\ffmpeg.exe" +
         L" -ss " + startTimeStr +
         L" -to " + endTimeStr +
         L" -i " + curInputPath + 
-        L" -vf \"fps = 30, scale = 1280:-1 : flags = lanczos, palettegen\" "+ 
-        curPalettePath;
+        L" -vf " +
+        frameStr() + L"," +
+        ScaleStr() + 
+        L": flags = lanczos, palettegen\" " +
+        curPalettePath +
+        L" -y";
     std::wstring gifCommand =
         currentDirPath + L"\\ffmpeg.exe" +
         L" -ss " + startTimeStr +
         L" -to " + endTimeStr +
         L" -i " + curInputPath + 
         L" -i " + curPalettePath +
-        L" -filter_complex \"fps = 30, scale = 1280:-1 : flags = lanczos[x]; [x] [1:v] paletteuse\" " +curOutputPath;
+        L" -filter_complex " +
+        frameStr() + L"," +
+        ScaleStr() +
+        L":flags = lanczos[x]; [x] [1:v] paletteuse\" " + curOutputPath +
+        L" -y";
     std::thread makeThread(&GIF::MakeThread, *this, paletteCommand, gifCommand);
 
     makeThread.detach();
     return 0;
+}
+
+int GIF::MakeLow(std::wstring& inputFile, std::wstring& outputFile)
+{
+    width = 320;
+    height = -1;
+    frameRate = 10;
+    return Make(inputFile, outputFile);
+}
+
+int GIF::MakeHigh(std::wstring& inputFile, std::wstring& outputFile)
+{
+    width = 1280;
+    height = -1;
+    frameRate = 30;
+    return Make(inputFile, outputFile);
 }
 
 std::wstring GIF::TimeFormat(const float seconds)

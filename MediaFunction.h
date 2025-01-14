@@ -92,3 +92,6 @@ HRESULT CreateSourceReaderAsync(
     PCWSTR pszURL,
     IMFSourceReaderCallback* pCallback,
     IMFSourceReader** ppReader);
+
+// IMFMediaSource
+HRESULT GetVideoResolution(IMFMediaSource* pSource, UINT32& width, UINT32& height);

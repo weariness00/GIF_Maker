@@ -11,6 +11,7 @@ public:
 	VideoView(HWND hwnd);
 	~VideoView();
 
+
 public:
 	void OnFileOpen(std::wstring& path);
 	LRESULT OnCreateWindow(HWND hwnd);
@@ -23,8 +24,12 @@ public:
 	void NotifyError(PCWSTR pszErrorMessage, HRESULT hrErr);
 
 	std::wstring* GetVideoPath() { return &videoFilePath; }
+
 protected:
 	LRESULT VideoHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+private:
+	void UpdateGIFArea();
 
 public:
 	HWND hVideo;

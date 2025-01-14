@@ -34,7 +34,7 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
 
     // Video Window
     hVideo = CreateChildWindow(
-        WS_EX_TOPMOST,
+        0,
         L"VideoView",
         NULL,
         WS_CHILD | WS_VISIBLE | WS_BORDER | WS_THICKFRAME,
@@ -44,6 +44,8 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
         GetModuleHandle(nullptr),
         this);
     OnCreateWindow(hVideo);
+    ShowWindow(hVideo, SW_SHOW);
+    UpdateWindow(hVideo);
 
     // ETC...
     ProjectManager::Instance->videoOpenExploprer.successFileOpenEvent.AddEvent(std::function<void(std::wstring)>([&](std::wstring inputFile)
@@ -54,6 +56,7 @@ VideoView::VideoView(HWND hwnd): videoPlayer(nullptr)
     videoPlayer->readyVideoRendererEvent.AddEvent(std::function<void()>([&]()
         {
             videoPlayer->Pause();
+            UpdateGIFArea();
         }));
 
     gifAreaImage.wTransform.SetRect(0, 0, wRect->right, wRect->bottom);
@@ -63,70 +66,6 @@ VideoView::~VideoView()
 {
     videoPlayer->Shutdown();
     SafeRelease(&videoPlayer);
-}
-
-LRESULT VideoView::VideoHandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg) {
-    case WM_CREATE:
-    {
-        dbWindow = new DoubleBufferingWindow(hwnd);
-        GDIPlusManager::Instance->CreateGraphics(dbWindow->GetMemHDC());
-        break;
-    }
-    case WM_LBUTTONDOWN:
-        SetFocus(hwnd); // 클릭한 자식 윈도우에 포커스를 준다.
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    case WM_NCHITTEST: {
-        RECT rect;
-        GetClientRect(hwnd, &rect);
-
-        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        ScreenToClient(hwnd, &pt);
-
-        const int BORDER_SIZE = 2; // 테두리 크기
-
-        if (pt.x <= BORDER_SIZE) {
-            if (pt.y <= BORDER_SIZE) return HTTOPLEFT; // 왼쪽 위 모서리
-            if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMLEFT; // 왼쪽 아래 모서리
-            return HTLEFT; // 왼쪽 테두리
-        }
-        if (pt.x >= rect.right - BORDER_SIZE) {
-            if (pt.y <= BORDER_SIZE) return HTTOPRIGHT; // 오른쪽 위 모서리
-            if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMRIGHT; // 오른쪽 아래 모서리
-            return HTRIGHT; // 오른쪽 테두리
-        }
-        if (pt.y <= BORDER_SIZE) return HTTOP; // 상단 테두리
-        if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOM; // 하단 테두리
-        
-        LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
-        return hit;
-    }
-    case WM_SIZING:{
-        // 클라이언트 영역의 크기 얻기
-        RECT clientRect;
-        GetClientRect(hwnd, &clientRect);  // 클라이언트 영역의 크기
-
-        OnResize(clientRect);
-
-        return TRUE;
-    }
-    //case WM_SIZE:
-    //    OnResize(windowH, windowH);
-    //    break;
-    case WM_CHAR:
-        OnKeyPress(wParam);
-        break;
-    case WM_APP_PLAYER_EVENT:
-        OnPlayerEvent(wParam);
-        break;
-    default:
-        return DefWindowProc(hwnd, uMsg, wParam, lParam);
-    }
-    return 0;
 }
 
 void VideoView::OnFileOpen(std::wstring& path)
@@ -248,4 +187,106 @@ void VideoView::NotifyError(PCWSTR pszErrorMessage, HRESULT hrErr)
     {
         MessageBox(hVideo, message, NULL, MB_OK | MB_ICONERROR);
     }
+}
+
+LRESULT VideoView::VideoHandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg) {
+    case WM_CREATE:
+    {
+        dbWindow = new DoubleBufferingWindow(hwnd);
+        GDIPlusManager::Instance->CreateGraphics(dbWindow->GetMemHDC());
+        break;
+    }
+    case WM_LBUTTONDOWN:
+        SetFocus(hwnd); // 클릭한 자식 윈도우에 포커스를 준다.
+        break;
+    case WM_PAINT:
+    {
+        const static auto paint = [&](HDC hdc) {
+            gifAreaImage.OnPaint(hdc);
+            };
+        videoPlayer->Repaint();
+        break;
+    }
+    case WM_NCHITTEST: {
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+
+        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+        ScreenToClient(hwnd, &pt);
+
+        const int BORDER_SIZE = 2; // 테두리 크기
+
+        if (pt.x <= BORDER_SIZE) {
+            if (pt.y <= BORDER_SIZE) return HTTOPLEFT; // 왼쪽 위 모서리
+            if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMLEFT; // 왼쪽 아래 모서리
+            return HTLEFT; // 왼쪽 테두리
+        }
+        if (pt.x >= rect.right - BORDER_SIZE) {
+            if (pt.y <= BORDER_SIZE) return HTTOPRIGHT; // 오른쪽 위 모서리
+            if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOMRIGHT; // 오른쪽 아래 모서리
+            return HTRIGHT; // 오른쪽 테두리
+        }
+        if (pt.y <= BORDER_SIZE) return HTTOP; // 상단 테두리
+        if (pt.y >= rect.bottom - BORDER_SIZE) return HTBOTTOM; // 하단 테두리
+
+        LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
+        return hit;
+    }
+    case WM_SIZING: {
+        // 클라이언트 영역의 크기 얻기
+        RECT clientRect;
+        GetClientRect(hwnd, &clientRect);  // 클라이언트 영역의 크기
+
+        OnResize(clientRect);
+
+        return TRUE;
+    }
+                  //case WM_SIZE:
+                  //    OnResize(windowH, windowH);
+                  //    break;
+    case WM_CHAR:
+        OnKeyPress(wParam);
+        break;
+    case WM_APP_PLAYER_EVENT:
+        OnPlayerEvent(wParam);
+        break;
+    default:
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
+
+void VideoView::UpdateGIFArea()
+{
+    // 윈도우 크기 가져오기
+    RECT windowRect = { 0 };
+    GetClientRect(hVideo, &windowRect); // hWnd: 비디오 렌더링 윈도우 핸들
+
+    SIZE videoSize, aspectRatio;
+    std::tie(videoSize, aspectRatio) = videoPlayer->GetNativeVideoSize();
+
+    // 윈도우 크기에 따른 비율 계산
+    int windowWidth = windowRect.right - windowRect.left;
+    int windowHeight = windowRect.bottom - windowRect.top;
+    float videoAspectRatio = (float)videoSize.cx / videoSize.cy;
+    float windowAspectRatio = (float)windowWidth / windowHeight;
+
+    Rect videoRect;
+    if (windowAspectRatio > videoAspectRatio) {
+        // 윈도우 너비가 더 넓은 경우 (높이 기준)
+        int adjustedWidth = (int)(windowHeight * videoAspectRatio);
+        int offsetX = (windowWidth - adjustedWidth) / 2;
+        videoRect = { offsetX, 0, offsetX + adjustedWidth, windowHeight };
+    }
+    else {
+        // 윈도우 높이가 더 큰 경우 (너비 기준)
+        int adjustedHeight = (int)(windowWidth / videoAspectRatio);
+        int offsetY = (windowHeight - adjustedHeight) / 2;
+        videoRect = { 0, offsetY, windowWidth, offsetY + adjustedHeight };
+    }
+
+    gifAreaImage.drawAreaRect = videoRect;
+    gifAreaImage.isDrawArea = true;
 }

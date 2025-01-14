@@ -122,7 +122,7 @@ LRESULT VideoTimeLineView::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 		}
 
 		videoFrameReader = new VideoFrameReader(hwnd);
-		videoFrameReader->wTransform.SetPosition(100, 50);
+		videoFrameReader->wTransform.SetPosition(0, 50);
 		timeObjectAssociate->mouseEventParentObject->SetChild(videoFrameReader);
 
 		break;

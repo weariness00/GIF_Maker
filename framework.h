@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "MainView.h"
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일
 #include <windows.h>
 #include <windowsx.h>
+
+
 // C 런타임 헤더 파일입니다.
 #include <filesystem>
 #include <stdlib.h>
@@ -52,8 +53,32 @@
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
+//ffmpeg lib
+//#include "libavcodec/avcodec.h"
+
 inline std::wstring currentDirPath;
 inline std::wstring PreviewDirPath = L"Preview";
+
+inline void ErrorDialog()
+{
+    DWORD error = GetLastError();
+    // 오류 코드 확인 (디버깅을 위한 출력)
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "Error code: %lu", error);
+    MessageBoxA(NULL, buffer, "Error", MB_OK);
+}
+
+inline char* GetDlgText(HWND hwnd, int id)
+{
+    HWND edit = GetDlgItem(hwnd, id);  // Rich-edit Control 핸들
+    // 텍스트 길이 가져오기
+    DWORD dwSize = GetWindowTextLength(edit);
+    // 텍스트를 위한 버퍼 준비
+    char* szText = new char[dwSize + 1];
+    // 텍스트 가져오기
+    GetWindowTextA(edit, szText, dwSize + 1);
+    return szText;
+}
 
 // 문자열을 따음표로 감싸기
 // www\dddds\d d.gif -> "www\dddds\d d.gif"

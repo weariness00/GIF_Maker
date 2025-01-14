@@ -82,6 +82,22 @@ HRESULT VideoPlayer::Initialize()
     return hr;
 }
 
+std::pair<SIZE, SIZE> VideoPlayer::GetNativeVideoSize()
+{
+    std::pair<SIZE, SIZE> nativeSize{ 0 , 0};
+    // 원본 비디오 크기와 비율을 가져옴
+    m_pVideoDisplay->GetNativeVideoSize(&nativeSize.first, &nativeSize.second);
+    return nativeSize;
+}
+
+RECT VideoPlayer::GetRenderVideoRect()
+{
+    MFVideoNormalizedRect sourceRect;
+    RECT destRect;
+    m_pVideoDisplay->GetVideoPosition(&sourceRect, &destRect);
+    return destRect;
+}
+
 double VideoPlayer::GetVideoDuration()
 {
 
@@ -127,7 +143,9 @@ VideoPlayer::VideoPlayer(HWND hVideo, HWND hEvent) :
     m_hwndEvent(hEvent),
     m_state(Closed),
     m_hCloseEvent(NULL),
-    m_nRefCount(1)
+    m_nRefCount(1),
+    wieth(0),
+    height(0)
 {
 }
 
@@ -226,6 +244,7 @@ HRESULT VideoPlayer::OpenURL(const WCHAR* sURL)
 
     m_state = OpenPending;
 
+    GetVideoResolution(m_pSource, wieth, height);
     // If SetTopology succeeds, the media session will queue an 
     // MESessionTopologySet event.
 

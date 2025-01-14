@@ -7,6 +7,9 @@
 #include "GIF.h"
 #include "VideoView.h"
 
+// Dialog Include
+#include "GIFMakeProgressDialog.h"
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -15,8 +18,10 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 ProjectManager pm;
 
-/* GDI 관련 데이터 */
+//Diaglog 관련
+GIFMakeProgressDialog progressDialog;
 
+/* GDI 관련 데이터 */
 ULONG_PTR gdiplusToken;
 GdiplusStartupInput gdiplusStartupInput;
 
@@ -28,7 +33,8 @@ VideoTimeLineView* videoTimeLineView;
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK    CustomGIF_DIALOG(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void Init()
 {
@@ -39,6 +45,8 @@ void Init()
     auto dirPath = std::filesystem::current_path() / PreviewDirPath;
     std::filesystem::create_directory(dirPath);
     PreviewDirPath = dirPath.wstring();
+
+    HINSTANCE hInstRichEdit = LoadLibrary(L"Msftedit.dll");
 
     testGIF.paletteGenerateEvent.AddEvent(std::function<void()>([]()
         {
@@ -215,8 +223,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             { 0,400, w, 400 });
         break;
     }
-    //case WM_LBUTTONDOWN:
-    //    break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -226,15 +232,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case HIGH_QUALITY_GIF:{
                 auto outputFile = PreviewDirPath + L"\\임시";
                 testGIF.SetTime(videoTimeLineView->GetTime());
-                testGIF.Make(*videoView->GetVideoPath(), outputFile);
+                testGIF.MakeHigh(*videoView->GetVideoPath(), outputFile);
+                break;
+            }
+            case LOW_QUALITY_GIF:{
+                auto outputFile = PreviewDirPath + L"\\임시";
+                testGIF.SetTime(videoTimeLineView->GetTime());
+                testGIF.MakeLow(*videoView->GetVideoPath(), outputFile);
+                break;
+            }
+            case CustomGIF: {
+                int result = DialogBox(hInst, MAKEINTRESOURCE(IDD_CustomGIF), hWnd, CustomGIF_DIALOG);
+                if (result == -1) ErrorDialog();
+                if (progressDialog.isInstanciate) progressDialog.Instanciate(hInst, hWnd);
                 break;
             }
             case WindowFileLoad:
                 ProjectManager::Instance->videoOpenExploprer.FileOpenDialog(hWnd);
                 break;
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            case IDM_ABOUT: {
+                int result = DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                if (result == -1) ErrorDialog();
                 break;
+            }
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -255,22 +275,120 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+LRESULT CALLBACK CustomGIF_DIALOG(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message){
+    case WM_INITDIALOG:{
+        ShowWindow(hDlg, SW_SHOW);
+
+        const wchar_t* resolutions[] = {
+            L"선택 안함",
+            L"240x160 (3:2)",       // QQVGA
+            L"320x240 (4:3)",       // QVGA
+            L"640x360 (16:9)",      // nHD
+            L"640x480 (4:3)",       // VGA
+            L"800x480 (16:9)",      // WVGA
+            L"800x600 (4:3)",       // Standard
+            L"1024x768 (4:3)",      // Standard
+            L"1280x720 (16:9)",     // HD
+            L"1280x800 (16:10)",    // 16:10
+            L"1366x768 (16:9)",     // HD+
+            L"1280x1024 (4:3)",     // 4:3
+            L"1600x1200 (4:3)",     // 4:3
+            L"1920x1080 (16:9)",    // Full HD
+            L"1920x1200 (16:10)",   // 16:10
+            L"1920x1440 (4:3)",     // 4:3
+            L"2048x1152 (17:9)",    // 17:9
+            L"2160x1440 (3:2)",     // 3:2
+            L"2560x1080 (21:9)",    // UltraWide 2560x1080
+            L"2560x1440 (16:9)",    // 2K
+            L"2560x1600 (16:10)",   // 16:10
+            L"3440x1440 (21:9)",    // UltraWide 3440x1440
+            L"3840x1600 (21:9)",    // UltraWide 3840x1600
+            L"3840x2160 (16:9)",    // 4K
+            L"5120x1440 (32:9)",    // Super UltraWide
+            L"7680x2160 (32:9)",    // Super UltraWide
+            L"7680x4320 (16:9)",    // 8K
+        };
+
+        HWND hComboBox = GetDlgItem(hDlg, IDC_CustomGIF_Resolution);
+        for (int i = 0; i < sizeof(resolutions) / sizeof(resolutions[0]); ++i) {
+            SendMessageW(hComboBox, CB_ADDSTRING, 0, (LPARAM)resolutions[i]);
+        }
+        SendMessageW(hComboBox, CB_SETCURSEL, 0, 0);
+
+        SetDlgItemTextA(hDlg, IDC_CustomGIF_Width, "1920");
+        SetDlgItemTextA(hDlg, IDC_CustomGIF_Height, "-1");
+        SetDlgItemTextA(hDlg, IDC_CustomGIF_FrameRate, "10");
+    }
+        return TRUE;
+    case WM_COMMAND:{
+        int wmId = LOWORD(wParam);
+        switch (wmId){
+        case IDOK: {
+            auto GetResolution = [&]() {
+                int selectedIndex = SendDlgItemMessage(hDlg, IDC_CustomGIF_Resolution, CB_GETCURSEL, 0, 0);
+                wchar_t selectedResolution[256];  // 선택된 텍스트를 저장할 배열
+                SendDlgItemMessage(hDlg, IDC_CustomGIF_Resolution, CB_GETLBTEXT, selectedIndex, (LPARAM)selectedResolution);
+                std::wstring resolution(selectedResolution);
+                size_t pos = resolution.find(L'x'); // 'x' 위치 찾기
+                if (pos != std::wstring::npos) {
+                    int width = std::stoi(resolution.substr(0, pos));  // 'x' 앞 부분을 width로
+                    int height = std::stoi(resolution.substr(pos + 1)); // 'x' 뒤 부분을 height로
+                    testGIF.SetScale(width, height);
+                    return true;
+                }
+                return false;
+            };
+
+            if (!GetResolution())
+            {
+                int w = atoi(GetDlgText(hDlg, IDC_CustomGIF_Width));
+                int h = atoi(GetDlgText(hDlg, IDC_CustomGIF_Height));
+                testGIF.SetScale(w, h);
+            }
+            int frame = atof(GetDlgText(hDlg, IDC_CustomGIF_FrameRate));
+            testGIF.SetFrameRate(frame);
+
+            auto outputFile = PreviewDirPath + L"\\임시";
+            testGIF.SetTime(videoTimeLineView->GetTime());
+            testGIF.Make(*videoView->GetVideoPath(), outputFile);
+
+            progressDialog.isInstanciate = true;
+            EndDialog(hDlg, IDOK);
+            return TRUE;
+        }
+        case IDCANCEL:{
+            EndDialog(hDlg, IDCANCEL);
+            return TRUE;
+        }
+        }
+    }
+    case WM_DESTROY:
+        break;
+    }
+    return FALSE;
+}
+
 // 정보 대화 상자의 메시지 처리기입니다.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
     case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
+        ShowWindow(hDlg, SW_SHOW);
+        return TRUE;
 
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+    case WM_COMMAND: {
+        int id = LOWORD(wParam);
+        if (id == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
+            return TRUE;
         }
         break;
     }
-    return (INT_PTR)FALSE;
+    }
+    return FALSE;
 }
